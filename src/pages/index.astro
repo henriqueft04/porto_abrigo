@@ -1,0 +1,367 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import Hero from '~/components/widgets/Hero.astro';
+import Note from '~/components/widgets/Note.astro';
+import Features from '~/components/widgets/Features.astro';
+import Features2 from '~/components/widgets/Features2.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import Content from '~/components/widgets/Content.astro';
+import Stats from '~/components/widgets/Stats.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+
+const metadata = {
+  title: 'Porto de Abrigo — Candidatura à Junta Regional do Porto 2025-2028',
+  ignoreTitleTemplate: true,
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero Widget ******************* -->
+
+  <Hero
+    actions={[
+      {
+        variant: 'primary',
+        text: 'Conhecer Propostas',
+        href: '#propostas',
+        icon: 'tabler:arrow-right',
+      },
+      { text: 'Conhecer Equipa', href: '#equipa' },
+    ]}
+    image={{ src: '~/assets/images/elementos/round_simbol.png', alt: 'Porto de Abrigo - Candidatura JRP 2025-2028' }}
+  >
+    <Fragment slot="title">
+      <span class="text-porto-purple dark:text-porto-purple">Caminhar com TODOS.</span><br>
+      <span class="text-porto-yellow dark:text-porto-yellow">Servir cada Um</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      <span class="text-lg font-medium text-gray-700 dark:text-gray-300">
+        Candidatura à Junta Regional do Porto<br>
+        <span class="font-bold text-porto-purple dark:text-porto-purple">TRIÉNIO 2025-2028</span>
+      </span>
+      <br><br>
+      <span class="text-base">
+        Somos a <strong>Equipa Porto de Abrigo</strong> que une a experiência de uma vida ao serviço 
+        dos agrupamentos e dos Núcleos, sem esquecer a força e a criatividade da juventude.
+      </span>
+    </Fragment>
+  </Hero>
+
+  <!-- Note Widget ******************* -->
+
+  <Note title="A nossa missão:" description="Queremos ser um porto de abrigo para o escutismo da região" />
+
+  <!-- Features Widget *************** -->
+
+  <Features
+    id="propostas"
+    tagline="As nossas propostas"
+    title="O que propomos para a região"
+    subtitle="Três pilares fundamentais que orientam toda a nossa visão para o desenvolvimento do escutismo na Região do Porto durante o triénio 2025-2028."
+    items={[
+      {
+        title: 'CAPACITAR',
+        description:
+          'Capacitar cada um para que o escutismo seja cada vez mais enriquecedor e significativo para os jovens.',
+        icon: 'tabler:school',
+      },
+      {
+        title: 'ENVOLVER',
+        description:
+          'Envolver para que cada dirigente se sinta parte de um todo, num propósito comum de desenvolvimento da região.',
+        icon: 'tabler:users',
+      },
+      {
+        title: 'VALORIZAR',
+        description:
+          'Valorizar a missão do escutismo no desenvolvimento integral dos jovens e reconhecer o contributo de cada um.',
+        icon: 'tabler:award',
+      },
+      {
+        title: 'Transparência na Gestão',
+        description:
+          'Construir confiança através de transparência, ética e responsabilidade na gestão de recursos com prestação de contas clara.',
+        icon: 'tabler:eye',
+      },
+      {
+        title: 'Inclusão e Diversidade',
+        description:
+          'Promover uma região que envolva, ouça e respeite a diversidade dos núcleos e dos seus agrupamentos.',
+        icon: 'tabler:heart-handshake',
+      },
+      {
+        title: 'Impacto Real',
+        description:
+          'Priorizar ações que tenham impacto real na vida dos nossos escuteiros e dirigentes, e das suas comunidades.',
+        icon: 'tabler:target',
+      },
+    ]}
+  />
+
+  <!-- Content Widget **************** -->
+
+  <Content
+    isReversed
+    id="equipa"
+    tagline="Nossa estrutura"
+    title="Uma equipa experiente e comprometida"
+    items={[
+      {
+        title: 'Liderança Regional',
+        description:
+          'Chefe Regional e Chefe Regional Adjunto com décadas de experiência no movimento escutista.',
+      },
+      {
+        title: 'Secretarias Especializadas',
+        description:
+          'Equipas dedicadas para Adultos, Desenvolvimento, Gestão, Finanças, Património e Pedagogia.',
+      },
+      {
+        title: 'Experiência Comprovada',
+        description:
+          'Dirigentes com percurso sólido em diferentes níveis organizacionais, desde agrupamentos até estruturas nacionais.',
+      },
+    ]}
+    image={{
+      src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+      alt: 'Equipa Porto de Abrigo',
+    }}
+  >
+    <Fragment slot="content">
+      <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Experiência ao serviço da região</h3>
+      Uma equipa que une a sabedoria da experiência com a energia e criatividade da juventude
+    </Fragment>
+
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-porto-coral/10 dark:bg-transparent"></div>
+    </Fragment>
+  </Content>
+
+  <!-- Content Widget **************** -->
+
+  <Content
+    isAfterContent
+    tagline="Liderança"
+    title="Candidatos Principais"
+    items={[
+      {
+        title: 'António José Ferreira Soares da Cofla',
+        description: `Candidato a Chefe Regional. Experiência desde 1982, atualmente Adjunto do Chefe de Núcleo Cidade do Porto. Distinções: Cruz S. Jorge 1ª Classe – Ouro, Louvor Nacional.`,
+      },
+      {
+        title: 'Vera Sofia Ferreira Moreira',
+        description:
+          'Candidata a Chefe Regional Adjunto. Engenheira de Software, Chefe de Núcleo Este, Formadora e Diretora de Formação do CNE. Distinções: Cruz de S. Jorge de 1ª Classe.',
+      },
+      {
+        title: 'Pedro Sérgio de Matos Faria Silva Moreira',
+        description:
+          'Candidato a Secretário Regional para os Adultos. Chefe de Núcleo Litoral, Formador do CNE e Diretor do MISC. Distinções: Cruz de São Jorge 2º classe.',
+      },
+      {
+        title: 'Carla Sofia Vitoriano de Oliveira Dias',
+        description:
+          'Candidata a Secretária Regional para o Desenvolvimento. Técnica Superior Jurista, Chefe Adjunta do Núcleo Terras de Santa Maria.',
+      },
+    ]}
+    image={{
+      src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+      alt: 'Liderança Porto de Abrigo',
+    }}
+  >
+    <Fragment slot="content">Candidatos com vasta experiência escutista</Fragment>
+
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-porto-coral/10 dark:bg-transparent"></div>
+    </Fragment>
+  </Content>
+
+  <!-- Content Widget **************** -->
+
+  <Content
+    isReversed
+    isAfterContent
+    tagline="Restante equipa"
+    title="Secretários Regionais"
+    items={[
+      {
+        title: 'Maria de Fátima Almeida de Freitas Camões',
+        description:
+          'Candidata a Secretária Regional para a Gestão Administrativa e Recursos Humanos. Gestora de crédito, atualmente Chefe de Núcleo Centro Norte.',
+      },
+      {
+        title: 'António Alberto dos Santos Alves',
+        description:
+          'Candidato a Secretário Regional para Gestão Financeira. Vasta experiência como Chefe de Núcleo e Secretário Regional Pedagógico. Distinções: Cruz de S. Jorge 1ª Classe.',
+      },
+      {
+        title: 'Rui Daniel Silva Cafaro',
+        description:
+          'Candidato a Secretário Regional para o Património. Secretário Administrativo de Núcleo Norte e Chefe de Agrupamento Adjunto.',
+      },
+      {
+        title: 'Cristiano Manuel Silva Pereira',
+        description: `Candidato a Secretário Regional Pedagógico. Diretor executivo, atualmente Chefe de Agrupamento e Interlocutor Internacional da Junta Regional do Porto.`,
+      },
+    ]}
+    image={{
+      src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+      alt: 'Secretários Regionais',
+    }}
+  >
+    <Fragment slot="content">Uma equipa completa e diversificada</Fragment>
+
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-porto-coral/10 dark:bg-transparent"></div>
+    </Fragment>
+  </Content>
+
+  <!-- Steps Widget ****************** -->
+
+  <Steps
+    id="propostas-detalhadas"
+    title="Propostas específicas para cada área da Junta Regional"
+    tagline="Plano de ação"
+    items={[
+      {
+        title: '<span class="font-medium">Chefia Regional</span>',
+        description:
+          'Promover trabalho sistémico entre os diversos níveis do CNE. Articular o trabalho entre as secretarias regionais. Definir e implementar uma Política Regional de Expansão. Estreitar relações com entidades externas.',
+        icon: 'tabler:crown',
+      },
+      {
+        title: '<span class="font-medium">Secretaria dos Adultos</span>',
+        description:
+          'Envolver, valorizar e capacitar o quadro de formadores regionais. Investir nas áreas de aprofundamento pedagógico. Promover formação contínua diferenciada. Melhorar condições de formação.',
+        icon: 'tabler:school',
+      },
+      {
+        title: '<span class="font-medium">Desenvolvimento</span>',
+        description:
+          'Promover ambiente inclusivo. Preparar para situações de emergência. Promover práticas sustentáveis. Melhorar comunicação interna e externa entre todos os níveis.',
+        icon: 'tabler:growth',
+      },
+      {
+        title: '<span class="font-medium">Gestão & Finanças</span>',
+        description:
+          'Tornar processos administrativos claros e eficientes. Criar canais de comunicação abertos. Dinamizar a utilização do SIIE. Gestão financeira clara e explícita com controlo constante.',
+        icon: 'tabler:calculator',
+      },
+      {
+        title: '<span class="font-medium">Património & Pedagogia</span>',
+        description:
+          'Capacitar e dinamizar infraestruturas regionais. Requalificar a Casa da Região. Criar ferramentas pedagógicas simples e acessíveis. Valorizar projetos locais criativos.',
+        icon: 'tabler:building',
+      },
+    ]}
+    image={{
+      src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80',
+      alt: 'Propostas regionais',
+    }}
+  />
+
+  <!-- Features2 Widget ************** -->
+
+  <Features2
+    title="Os nossos compromissos"
+    subtitle="Valores e princípios que orientam a nossa candidatura para o triénio 2025-2028"
+    tagline="Compromissos"
+    items={[
+      {
+        title: 'Inclusão',
+        description: "Promover uma região que envolva, ouça e respeite a diversidade dos núcleos e agrupamentos.",
+        icon: 'flat-color-icons:approval',
+      },
+      {
+        title: 'Transparência',
+        description:
+          "Gestão clara e transparente de recursos, com prestação de contas regular e acessível a todos.",
+        icon: 'flat-color-icons:gallery',
+      },
+      {
+        title: 'Formação',
+        description:
+          'Investir na capacitação contínua dos dirigentes, oferecendo formação de qualidade e adaptada às necessidades.',
+        icon: 'flat-color-icons:template',
+      },
+      {
+        title: 'Inovação',
+        description:
+          "Promover novas práticas e ferramentas que facilitem o trabalho dos agrupamentos e melhorem a experiência escutista.",
+        icon: 'flat-color-icons:document',
+      },
+      {
+        title: 'Sustentabilidade',
+        description:
+          'Promover práticas ambientalmente responsáveis e educar para a consciencialização ambiental.',
+        icon: 'flat-color-icons:advertising',
+      },
+      {
+        title: 'Apoio Local',
+        description: 'Dar suporte efetivo aos núcleos e agrupamentos nas suas necessidades específicas.',
+        icon: 'flat-color-icons:business-contact',
+      },
+      {
+        title: 'Comunicação',
+        description: 'Melhorar os fluxos de informação entre todos os níveis da estrutura regional.',
+        icon: 'flat-color-icons:voice-presentation',
+      },
+      {
+        title: 'Património',
+        description:
+          'Valorizar e otimizar o uso das infraestruturas regionais para benefício de toda a comunidade escutista.',
+        icon: 'flat-color-icons:database',
+      },
+      {
+        title: 'Juventude',
+        description: "Dar voz ativa aos jovens dirigentes e valorizar o seu contributo para o desenvolvimento regional.",
+        icon: 'flat-color-icons:currency-exchange',
+      },
+    ]}
+  >
+    <Fragment slot="bg">
+      <div class="absolute inset-0 bg-porto-coral/10 dark:bg-transparent"></div>
+    </Fragment>
+  </Features2>
+
+
+  <!-- Stats Widget ****************** -->
+
+  <Stats
+    stats={[
+      { title: 'Anos de Experiência', amount: '40+' },
+      { title: 'Núcleos na Região', amount: '6' },
+      { title: 'Agrupamentos', amount: '80+' },
+      { title: 'Escuteiros', amount: '8.000+' },
+    ]}
+  />
+
+  <!-- CallToAction Widget *********** -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        text: 'Contactar Equipa',
+        href: '/contact',
+        icon: 'tabler:mail',
+      },
+      {
+        text: 'Ver Propostas Completas',
+        href: '#propostas-detalhadas',
+        icon: 'tabler:file-text',
+      },
+    ]}
+  >
+    <Fragment slot="title">
+      Connosco <br class="block sm:hidden" /><span class="sm:whitespace-nowrap text-porto-purple">PODEM CONTAR!</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      Juntos, vamos construir uma região mais forte, inclusiva e preparada para os desafios do futuro. <br class="hidden md:inline" />
+      A mudança começa com a vossa confiança.
+    </Fragment>
+  </CallToAction>
+</Layout>

@@ -1,0 +1,146 @@
+---
+import Features2 from '~/components/widgets/Features2.astro';
+import Features3 from '~/components/widgets/Features3.astro';
+import Hero from '~/components/widgets/Hero.astro';
+import Stats from '~/components/widgets/Stats.astro';
+import Steps2 from '~/components/widgets/Steps2.astro';
+import Content from '~/components/widgets/Content.astro';
+import Layout from '~/layouts/PageLayout.astro';
+
+const metadata = {
+  title: 'Equipa - Porto de Abrigo',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero Widget ******************* -->
+
+  <Hero
+    tagline="Nossa Equipa"
+    image={{
+      src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+      alt: 'Equipa Porto de Abrigo',
+    }}
+  >
+    <Fragment slot="title">
+      Conheça a <span class="text-blue-600 dark:text-blue-400">Equipa Porto de Abrigo</span> <br />
+      <span class="text-green-600 dark:text-green-400">Candidatura JRP 2025-2028</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      Uma equipa experiente e comprometida que une a sabedoria adquirida ao longo de décadas de serviço ao escutismo 
+      com a energia e criatividade da juventude. Cada candidato traz consigo um percurso sólido e uma visão clara 
+      para o futuro da Região do Porto.
+    </Fragment>
+  </Hero>
+
+  <!-- Stats Widget ****************** -->
+
+  <Stats
+    title="A nossa experiência em números"
+    stats={[
+      { title: 'Anos de Experiência Acumulada', amount: '200+' },
+      { title: 'Candidatos', amount: '8' },
+      { title: 'Distinções Escutistas', amount: '15+' },
+      { title: 'Cargos Exercidos', amount: '50+' },
+    ]}
+  />
+
+  <!-- Features3 Widget ************** -->
+
+  <Features3
+    title="Liderança Regional"
+    subtitle="Os candidatos que irão liderar a Região do Porto no triénio 2025-2028, com décadas de experiência e uma visão clara para o futuro."
+    columns={2}
+    isBeforeContent={true}
+    items={[
+      {
+        title: 'António José Ferreira Soares da Cofla',
+        description:
+          'Candidato a Chefe Regional. Entrada no movimento em 1982, atualmente Adjunto do Chefe de Núcleo Cidade do Porto. Distinções: Cruz S. Jorge 1ª Classe – Ouro, Louvor Nacional.',
+        icon: 'tabler:crown',
+      },
+      {
+        title: 'Vera Sofia Ferreira Moreira',
+        description:
+          'Candidata a Chefe Regional Adjunto. Engenheira de Software, Chefe de Núcleo Este, Formadora e Diretora de Formação do CNE. Distinções: Cruz de S. Jorge de 1ª Classe.',
+        icon: 'tabler:user-star',
+      },
+    ]}
+  />
+
+  <!-- Features3 Widget ************** -->
+
+  <Features3
+    title="Secretários Regionais"
+    subtitle="Uma equipa especializada de secretários regionais com experiência comprovada em diferentes áreas de gestão e desenvolvimento."
+    columns={3}
+    isAfterContent={true}
+    items={[
+      {
+        title: 'Pedro Sérgio Moreira',
+        description:
+          'Secretário Regional para os Adultos. Chefe de Núcleo Litoral, Formador do CNE e Diretor do MISC. Distinções: Cruz de São Jorge 2º classe.',
+        icon: 'tabler:school',
+      },
+      {
+        title: 'Carla Sofia Dias',
+        description:
+          'Secretária Regional para o Desenvolvimento. Técnica Superior Jurista, Chefe Adjunta do Núcleo Terras de Santa Maria.',
+        icon: 'tabler:growth',
+      },
+      {
+        title: 'Maria de Fátima Camões',
+        description:
+          'Secretária Regional para a Gestão Administrativa e Recursos Humanos. Gestora de crédito, atualmente Chefe de Núcleo Centro Norte.',
+        icon: 'tabler:users',
+      },
+      {
+        title: 'António Alberto Alves',
+        description:
+          'Secretário Regional para Gestão Financeira. Distinções: Cruz de S. Jorge 1ª Classe. Vasta experiência como Secretário Regional Pedagógico.',
+        icon: 'tabler:calculator',
+      },
+      {
+        title: 'Rui Daniel Cafaro',
+        description:
+          'Secretário Regional para o Património. Secretário Administrativo de Núcleo Norte e Chefe de Agrupamento Adjunto.',
+        icon: 'tabler:building',
+      },
+      {
+        title: 'Cristiano Manuel Pereira',
+        description:
+          'Secretário Regional Pedagógico. Diretor executivo, atualmente Chefe de Agrupamento e Interlocutor Internacional da JRP.',
+        icon: 'tabler:book',
+      },
+    ]}
+    image={{
+      src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80',
+      alt: 'Secretários Regionais',
+    }}
+  />
+
+  <!-- Steps2 Widget ****************** -->
+
+  <Steps2
+    title="Os nossos valores"
+    subtitle="Os princípios fundamentais que orientam a nossa candidatura e que garantem uma gestão ética, transparente e focada no desenvolvimento de todos."
+    items={[
+      {
+        title: 'Caminhar com TODOS',
+        description:
+          'Promover uma região que envolva, ouça e respeite a diversidade dos núcleos e dos seus agrupamentos, assegurando que cada voz seja ouvida.',
+      },
+      {
+        title: 'Servir cada Um',
+        description:
+          'Priorizar ações que tenham impacto real na vida dos nossos escuteiros e dirigentes, com foco em inclusão e oportunidades de crescimento.',
+      },
+      {
+        title: 'Construir Confiança',
+        description:
+          'Transparência, ética e responsabilidade na gestão de recursos e prestação de contas clara para toda a comunidade escutista.',
+      },
+    ]}
+  />
+</Layout>
