@@ -9,11 +9,135 @@ import Steps from '~/components/widgets/Steps.astro';
 import Content from '~/components/widgets/Content.astro';
 import Stats from '~/components/widgets/Stats.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
+import Card from '~/components/ui/Card.astro';
+import ImageModal from '~/components/ui/ImageModal.astro';
+
+// Import images
+import contarImage from '~/assets/images/equipa/rotated.png';
 
 const metadata = {
   title: 'Porto de Abrigo — Candidatura à Junta Regional do Porto 2025-2028',
   ignoreTitleTemplate: true,
 };
+
+// Candidatos Principais
+const candidatosPrincipais = [
+  {
+    name: "António José Ferreira Soares da Cofla",
+    role: "Candidato a Chefe Regional",
+    nucleus: "Cidade do Porto",
+    description: "Experiência desde 1982, atualmente Adjunto do Chefe de Núcleo Cidade do Porto. Distinções: Cruz S. Jorge 1ª Classe – Ouro, Louvor Nacional.",
+    image: "~/assets/images/equipa/antonio.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "42+" },
+      { label: "Distinções", value: "2" },
+      { label: "Núcleo", value: "Cidade Porto" }
+    ],
+    curriculumPage: 6,
+    profileImageName: "Toze.png",
+  },
+  {
+    name: "Vera Sofia Ferreira Moreira",
+    role: "Candidata a Chefe Regional Adjunto",
+    nucleus: "Este",
+    description: "Engenheira de Software, Chefe de Núcleo Este, Formadora e Diretora de Formação do CNE. Distinções: Cruz de S. Jorge de 1ª Classe.",
+    image: "~/assets/images/equipa/vera.jpeg", 
+    stats: [
+      { label: "Anos Escutismo", value: "20+" },
+      { label: "Distinções", value: "1" },
+      { label: "Núcleo", value: "Este" }
+    ],
+    curriculumPage: 7,
+    profileImageName: "Vera.png",
+  }];
+
+// Secretários Regionais
+const secretariosRegionais = [
+  {
+    name: "Maria de Fátima Almeida de Freitas Camões",
+    role: "Secretária Regional para Gestão Administrativa e RH",
+    nucleus: "Centro Norte",
+    description: "Gestora de crédito, atualmente Chefe de Núcleo Centro Norte.",
+    image: "~/assets/images/equipa/maria.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "18+" },
+      { label: "Cargos", value: "8+" },
+      { label: "Núcleo", value: "Centro Norte" }
+    ],
+    curriculumPage: 10,
+    profileImageName: "Fatima 1.jpeg",
+  },
+  {
+    name: "Pedro Sérgio de Matos Faria Silva Moreira",
+    role: "Candidato a Secretário Regional para os Adultos",
+    nucleus: "Litoral",
+    description: "Chefe de Núcleo Litoral, Formador do CNE e Diretor do MISC. Distinções: Cruz de São Jorge 2º classe.",
+    image: "~/assets/images/equipa/pedro.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "25+" },
+      { label: "Distinções", value: "1" },
+      { label: "Núcleo", value: "Litoral" }
+    ],
+    curriculumPage: 8,
+    profileImageName: "Pedro.png",
+  },
+  {
+    name: "Carla Sofia Vitoriano de Oliveira Dias",
+    role: "Candidata a Secretária Regional para o Desenvolvimento",
+    nucleus: "Terras de Santa Maria",
+    description: "Técnica Superior Jurista, Chefe Adjunta do Núcleo Terras de Santa Maria.",
+    image: "~/assets/images/equipa/carla.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "15+" },
+      { label: "Cargos", value: "5+" },
+      { label: "Núcleo", value: "T. Sta Maria" }
+    ],
+    curriculumPage: 9,
+    profileImageName: "Carla.png",
+  },
+  {
+    name: "António Alberto dos Santos Alves",
+    role: "Secretário Regional para Gestão Financeira",
+    nucleus: "Porto",
+    description: "Vasta experiência como Chefe de Núcleo e Secretário Regional Pedagógico. Distinções: Cruz de S. Jorge 1ª Classe.",
+    image: "~/assets/images/equipa/antiono_alberto.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "30+" },
+      { label: "Distinções", value: "1" },
+      { label: "Experiência", value: "Sec. Regional" }
+    ],
+    curriculumPage: 11,
+    profileImageName: "Alves.png",
+  },
+  {
+    name: "Rui Daniel Silva Cafaro",
+    role: "Secretário Regional para o Património",
+    nucleus: "Norte",
+    description: "Secretário Administrativo de Núcleo Norte e Chefe de Agrupamento Adjunto.",
+    image: "~/assets/images/equipa/rui.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "20+" },
+      { label: "Cargos", value: "6+" },
+      { label: "Núcleo", value: "Norte" }
+    ],
+    curriculumPage: 12,
+    profileImageName: "Rui.jpeg",
+  },
+  {
+    name: "Cristiano Manuel Silva Pereira",
+    role: "Secretário Regional Pedagógico",
+    nucleus: "Porto",
+    description: "Diretor executivo, atualmente Chefe de Agrupamento e Interlocutor Internacional da Junta Regional do Porto.",
+    image: "~/assets/images/equipa/cristiano.jpeg",
+    stats: [
+      { label: "Anos Escutismo", value: "22+" },
+      { label: "Formações", value: "50+" },
+      { label: "Internacional", value: "JRP" }
+    ],
+    curriculumPage: 13,
+    profileImageName: "Cristiano.jpeg",
+  }
+];
 ---
 
 <Layout metadata={metadata}>
@@ -105,7 +229,7 @@ const metadata = {
   <Content
     isReversed
     id="equipa"
-    tagline="Nossa estrutura"
+    tagline="A Nossa estrutura"
     title="Uma equipa experiente e comprometida"
     items={[
       {
@@ -125,8 +249,10 @@ const metadata = {
       },
     ]}
     image={{
-      src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+      src: '~/assets/images/equipa/team.jpeg',
       alt: 'Equipa Porto de Abrigo',
+      width: 1920,
+      height: 1080,
     }}
   >
     <Fragment slot="content">
@@ -139,84 +265,67 @@ const metadata = {
     </Fragment>
   </Content>
 
-  <!-- Content Widget **************** -->
+  <!-- Candidatos Principais Cards Section -->
+  
+  <section class="py-12 md:py-20 bg-porto-coral/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <p class="text-base text-porto-yellow font-bold tracking-wide uppercase mb-2">Liderança</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-porto-purple mb-4">Candidatos Principais</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Candidatos com vasta experiência escutista para liderar a região
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 px-4">
+        {candidatosPrincipais.map((candidato) => (
+          <Card
+            name={candidato.name}
+            role={candidato.role}
+            location={`${candidato.nucleus}, Porto`}
+            description={candidato.description}
+            image={candidato.image}
+            profileImageName={candidato.profileImageName}
+            curriculumPdfUrl={'/candidatura à JRP projeto.pdf'}
+            curriculumPage={candidato.curriculumPage}
+            stats={candidato.stats}
+            buttonText="Ver Perfil"
+          />
+        ))}
+      </div>
+    </div>
+  </section>
 
-  <Content
-    isAfterContent
-    tagline="Liderança"
-    title="Candidatos Principais"
-    items={[
-      {
-        title: 'António José Ferreira Soares da Cofla',
-        description: `Candidato a Chefe Regional. Experiência desde 1982, atualmente Adjunto do Chefe de Núcleo Cidade do Porto. Distinções: Cruz S. Jorge 1ª Classe – Ouro, Louvor Nacional.`,
-      },
-      {
-        title: 'Vera Sofia Ferreira Moreira',
-        description:
-          'Candidata a Chefe Regional Adjunto. Engenheira de Software, Chefe de Núcleo Este, Formadora e Diretora de Formação do CNE. Distinções: Cruz de S. Jorge de 1ª Classe.',
-      },
-      {
-        title: 'Pedro Sérgio de Matos Faria Silva Moreira',
-        description:
-          'Candidato a Secretário Regional para os Adultos. Chefe de Núcleo Litoral, Formador do CNE e Diretor do MISC. Distinções: Cruz de São Jorge 2º classe.',
-      },
-      {
-        title: 'Carla Sofia Vitoriano de Oliveira Dias',
-        description:
-          'Candidata a Secretária Regional para o Desenvolvimento. Técnica Superior Jurista, Chefe Adjunta do Núcleo Terras de Santa Maria.',
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Liderança Porto de Abrigo',
-    }}
-  >
-    <Fragment slot="content">Candidatos com vasta experiência escutista</Fragment>
-
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-porto-coral/10 dark:bg-transparent"></div>
-    </Fragment>
-  </Content>
-
-  <!-- Content Widget **************** -->
-
-  <Content
-    isReversed
-    isAfterContent
-    tagline="Restante equipa"
-    title="Secretários Regionais"
-    items={[
-      {
-        title: 'Maria de Fátima Almeida de Freitas Camões',
-        description:
-          'Candidata a Secretária Regional para a Gestão Administrativa e Recursos Humanos. Gestora de crédito, atualmente Chefe de Núcleo Centro Norte.',
-      },
-      {
-        title: 'António Alberto dos Santos Alves',
-        description:
-          'Candidato a Secretário Regional para Gestão Financeira. Vasta experiência como Chefe de Núcleo e Secretário Regional Pedagógico. Distinções: Cruz de S. Jorge 1ª Classe.',
-      },
-      {
-        title: 'Rui Daniel Silva Cafaro',
-        description:
-          'Candidato a Secretário Regional para o Património. Secretário Administrativo de Núcleo Norte e Chefe de Agrupamento Adjunto.',
-      },
-      {
-        title: 'Cristiano Manuel Silva Pereira',
-        description: `Candidato a Secretário Regional Pedagógico. Diretor executivo, atualmente Chefe de Agrupamento e Interlocutor Internacional da Junta Regional do Porto.`,
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Secretários Regionais',
-    }}
-  >
-    <Fragment slot="content">Uma equipa completa e diversificada</Fragment>
-
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-porto-coral/10 dark:bg-transparent"></div>
-    </Fragment>
-  </Content>
+  <!-- Secretários Regionais Cards Section -->
+  
+  <section class="py-12 md:py-20 bg-porto-coral/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <p class="text-base text-porto-yellow font-bold tracking-wide uppercase mb-2">Restante equipa</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-porto-purple mb-4">Secretários Regionais</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Uma equipa completa e diversificada de secretários especializados
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-12 px-4">
+        {secretariosRegionais.map((secretario) => (
+          <Card
+            name={secretario.name}
+            role={secretario.role}
+            location={`${secretario.nucleus}, Porto`}
+            description={secretario.description}
+            image={secretario.image}
+            profileImageName={secretario.profileImageName}
+            curriculumPdfUrl={'/candidatura à JRP projeto.pdf'}
+            curriculumPage={secretario.curriculumPage}
+            stats={secretario.stats}
+            buttonText="Ver Perfil"
+          />
+        ))}
+      </div>
+    </div>
+  </section>
 
   <!-- Steps Widget ****************** -->
 
@@ -257,7 +366,7 @@ const metadata = {
       },
     ]}
     image={{
-      src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80',
+      src: contarImage,
       alt: 'Propostas regionais',
     }}
   />
@@ -326,7 +435,6 @@ const metadata = {
     </Fragment>
   </Features2>
 
-
   <!-- Stats Widget ****************** -->
 
   <Stats
@@ -364,4 +472,7 @@ const metadata = {
       A mudança começa com a vossa confiança.
     </Fragment>
   </CallToAction>
+
+  <!-- Image Modal -->
+  <ImageModal />
 </Layout>

@@ -1,0 +1,283 @@
+---
+export interface Props {
+  pdfUrl: string;
+  pageNumber?: number;
+  width?: number;
+  height?: number;
+  class?: string;
+}
+
+const {
+  pdfUrl,
+  pageNumber = 1,
+  width = 400,
+  height = 600,
+  class: className = ""
+} = Astro.props;
+
+const canvasId = `pdf-canvas-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<div class={`pdf-viewer-container ${className}`}>
+  <canvas 
+    id={canvasId} 
+    data-pdf-url={pdfUrl} 
+    data-page-number={pageNumber}
+    data-width={width}
+    data-height={height}
+    style={`max-width: ${width}px; max-height: ${height}px;`}
+    class="pdf-canvas"
+  ></canvas>
+  <div class="pdf-loading" id={`loading-${canvasId}`}>
+    <div class="loading-spinner"></div>
+    <p>Carregando PDF...</p>
+  </div>
+  <div class="pdf-error hidden" id={`error-${canvasId}`}>
+    <p>Erro ao carregar PDF</p>
+  </div>
+</div>
+
+<style>
+  .pdf-viewer-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .pdf-canvas {
+    border-radius: inherit;
+    box-shadow: inherit;
+    border: inherit;
+  }
+
+  .pdf-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: inherit;
+  }
+
+  .pdf-loading.hidden,
+  .pdf-error.hidden {
+    display: none;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  .pdf-error {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244, 63, 94, 0.1);
+    color: #dc2626;
+    border-radius: inherit;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+  // Type declarations for PDF.js
+  interface PDFDocumentProxy {
+    getPage(pageNumber: number): Promise<PDFPageProxy>;
+  }
+
+  interface PDFRenderContext {
+    canvasContext: CanvasRenderingContext2D | null;
+    viewport: PDFPageViewport;
+  }
+
+  interface PDFPageProxy {
+    getViewport(params: { scale: number }): PDFPageViewport;
+    render(renderContext: PDFRenderContext): { promise: Promise<void> };
+  }
+
+  interface PDFPageViewport {
+    width: number;
+    height: number;
+  }
+
+  declare global {
+    interface Window {
+      pdfjsLib?: {
+        getDocument(url: string): { promise: Promise<PDFDocumentProxy> };
+        GlobalWorkerOptions: { workerSrc: string };
+      };
+      pdfViewerInitialized?: boolean;
+      loadPDFInCanvas?: (canvasElement: HTMLCanvasElement) => Promise<void>;
+    }
+  }
+
+  // Global function to load PDF in any canvas (if not already defined by ImageModal)
+  if (!window.loadPDFInCanvas) {
+    window.loadPDFInCanvas = async function(canvasElement: HTMLCanvasElement) {
+    const pdfUrl = canvasElement.getAttribute('data-pdf-url');
+    const pageNumber = parseInt(canvasElement.getAttribute('data-page-number') || '1');
+    const maxWidth = parseInt(canvasElement.getAttribute('data-width') || '400');
+    const maxHeight = parseInt(canvasElement.getAttribute('data-height') || '600');
+    
+    const loadingElement = document.getElementById(`loading-${canvasElement.id}`);
+    const errorElement = document.getElementById(`error-${canvasElement.id}`);
+    
+    if (!pdfUrl) {
+      console.error('No PDF URL provided');
+      return;
+    }
+
+    try {
+      if (!window.pdfjsLib) {
+        console.error('PDF.js not loaded');
+        if (errorElement) {
+          errorElement.classList.remove('hidden');
+          errorElement.innerHTML = '<p>PDF.js não carregado</p>';
+        }
+        return;
+      }
+
+      // Decode the URL if it's encoded
+      const decodedUrl = decodeURIComponent(pdfUrl);
+      console.log('Loading PDF:', decodedUrl, 'Page:', pageNumber);
+      
+      const pdf = await window.pdfjsLib.getDocument(decodedUrl).promise;
+      const page = await pdf.getPage(pageNumber);
+      
+      const viewport = page.getViewport({ scale: 1.0 });
+      
+      // Calculate scale to fit within max dimensions while maintaining aspect ratio
+      const scaleX = maxWidth / viewport.width;
+      const scaleY = maxHeight / viewport.height;
+      const scale = Math.min(scaleX, scaleY);
+      
+      const scaledViewport = page.getViewport({ scale });
+      
+      canvasElement.width = scaledViewport.width;
+      canvasElement.height = scaledViewport.height;
+      canvasElement.style.width = scaledViewport.width + 'px';
+      canvasElement.style.height = scaledViewport.height + 'px';
+      
+      const context = canvasElement.getContext('2d');
+      if (!context) {
+        throw new Error('Cannot get 2D context from canvas');
+      }
+      
+      const renderContext = {
+        canvasContext: context,
+        viewport: scaledViewport
+      };
+      
+      await page.render(renderContext).promise;
+      
+      // Hide loading, show canvas
+      if (loadingElement) loadingElement.classList.add('hidden');
+      canvasElement.style.display = 'block';
+      
+      console.log('PDF loaded successfully');
+      
+    } catch (error) {
+      console.error('Error loading PDF:', error);
+      if (loadingElement) loadingElement.classList.add('hidden');
+      if (errorElement) {
+        errorElement.classList.remove('hidden');
+        errorElement.innerHTML = '<p>Erro ao carregar PDF: ' + (error as Error).message + '</p>';
+      }
+    }
+  };
+  }
+
+  // Load PDF.js from CDN and initialize
+  function loadPDFJS() {
+    return new Promise<void>((resolve, reject) => {
+      if (window.pdfjsLib) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = () => {
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          console.log('PDF.js loaded successfully');
+          resolve();
+        } else {
+          reject(new Error('Failed to load PDF.js'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load PDF.js script'));
+      document.head.appendChild(script);
+    });
+  }
+
+  // Initialize PDF viewers
+  async function initializePDFViewers() {
+    if (window.pdfViewerInitialized) return;
+    
+    try {
+      await loadPDFJS();
+      window.pdfViewerInitialized = true;
+      
+      const pdfCanvases = document.querySelectorAll('.pdf-canvas');
+      console.log(`Found ${pdfCanvases.length} PDF canvases to initialize`);
+      
+      for (const canvas of pdfCanvases) {
+        const canvasElement = canvas as HTMLCanvasElement;
+        if (canvasElement.getAttribute('data-pdf-loaded') !== 'true') {
+          await window.loadPDFInCanvas!(canvasElement);
+          canvasElement.setAttribute('data-pdf-loaded', 'true');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to initialize PDF viewers:', error);
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePDFViewers);
+  } else {
+    initializePDFViewers();
+  }
+
+  // Also initialize immediately for any existing canvases
+  if (typeof window !== 'undefined') {
+    setTimeout(initializePDFViewers, 100);
+    // Add a retry mechanism for modal canvases that might be created later
+    setInterval(() => {
+      const uninitializedCanvases = document.querySelectorAll('.pdf-canvas:not([data-pdf-loaded="true"])');
+      if (uninitializedCanvases.length > 0 && window.loadPDFInCanvas) {
+        console.log(`Found ${uninitializedCanvases.length} uninitialized PDF canvases, retrying...`);
+        uninitializedCanvases.forEach(async (canvas) => {
+          const canvasElement = canvas as HTMLCanvasElement;
+          try {
+            await window.loadPDFInCanvas!(canvasElement);
+            canvasElement.setAttribute('data-pdf-loaded', 'true');
+          } catch (error) {
+            console.error('Retry failed for canvas:', error);
+          }
+        });
+      }
+    }, 1000);
+  }
+</script>

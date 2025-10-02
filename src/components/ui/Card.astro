@@ -1,0 +1,309 @@
+---
+import Image from '~/components/common/Image.astro';
+import PDFViewer from '~/components/ui/PDFViewer.astro';
+import { findImage } from '~/utils/images';
+
+export interface Props {
+  name: string;
+  role: string;
+  location?: string;
+  description: string;
+  image: string;
+  isPdf?: boolean;
+  pdfPage?: number;
+  profileImageName?: string;
+  curriculumPdfUrl?: string;
+  curriculumPage?: number;
+  stats?: {
+    label: string;
+    value: string;
+  }[];
+  buttonText?: string;
+}
+
+const {
+  name,
+  role,
+  location,
+  description,
+  image,
+  isPdf = false,
+  pdfPage = 1,
+  profileImageName,
+  curriculumPdfUrl = '/candidatura à JRP projeto.pdf',
+  curriculumPage,
+  stats = [],
+  buttonText = "Ver Perfil"
+} = Astro.props;
+
+const resolvedImage = isPdf ? null : await findImage(image);
+const profileImagePath = profileImageName ? `~/assets/images/profiles/${profileImageName}` : '';
+const resolvedProfileImage = profileImageName ? await findImage(profileImagePath) : null;
+const profileModalSrc = resolvedProfileImage && typeof resolvedProfileImage === 'object' && 'src' in (resolvedProfileImage as Record<string, unknown>)
+  ? (resolvedProfileImage as Record<string, unknown>).src as string
+  : '';
+---
+
+<div class="relative max-w-2xl mx-auto md:max-w-4xl min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded-xl overflow-visible min-h-[360px]">
+  <div class="flex flex-col md:flex-row min-h-full">
+    <!-- Image Section -->
+    <div class="relative md:w-1/3 flex justify-center md:justify-start items-center px-4 md:px-0">
+      <div class="relative -mt-8 md:mt-0 md:-ml-4">
+        {isPdf ? (
+          <div class="relative clickable-image" data-image-src={image} data-name={name} data-role={role} data-description={description} data-stats={JSON.stringify(stats)} data-is-pdf="true" data-pdf-page={pdfPage}>
+            <PDFViewer
+              pdfUrl={image}
+              pageNumber={pdfPage}
+              width={192}
+              height={320}
+              class="shadow-2xl rounded-3xl w-32 h-80 md:w-40 md:h-80 lg:w-48 lg:h-80 border-4 border-white cursor-pointer transition-transform duration-300 hover:scale-105"
+            />
+            <div class="image-overlay-click">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="expand-icon"
+              >
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+              </svg>
+            </div>
+          </div>
+        ) : resolvedImage ? (
+          <div class="relative clickable-image" data-image-src={typeof resolvedImage === 'string' ? resolvedImage : (resolvedImage as Record<string, unknown>).src as string} data-name={name} data-role={role} data-description={description} data-stats={JSON.stringify(stats)} data-pdf-page={curriculumPage} data-curriculum-pdf={curriculumPdfUrl} data-profile-src={profileModalSrc}>
+            <Image
+              src={resolvedImage}
+              alt={name}
+              class="shadow-2xl rounded-3xl w-32 h-80 md:w-40 md:h-80 lg:w-48 lg:h-80 object-cover border-4 border-white cursor-pointer transition-transform duration-300 hover:scale-105"
+              style="object-position: 75% center;"
+              width={192}
+              height={320}
+              loading="lazy"
+            />
+            <div class="image-overlay-click">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="expand-icon"
+              >
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2 2h3"></path>
+              </svg>
+            </div>
+          </div>
+        ) : (
+          <div class="shadow-2xl rounded-3xl w-32 h-80 md:w-40 md:h-80 lg:w-48 lg:h-80 bg-gray-300 flex items-center justify-center text-gray-600 text-xs border-4 border-white">
+            No Content
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="md:w-2/3 p-6 md:pl-4 flex flex-col justify-center">
+      <!-- Name and Role -->
+      <div class="text-center md:text-left mb-4">
+        <h3 class="text-xl md:text-2xl text-porto-purple font-bold leading-normal mb-1">{name}</h3>
+        <div class="text-xs mt-0 mb-2 text-porto-yellow font-bold uppercase">
+          {location && <i class="fas fa-map-marker-alt mr-2 text-porto-coral opacity-75"></i>}
+          {role}
+        </div>
+      </div>
+
+      <!-- Stats -->
+      {stats.length > 0 && (
+        <div class="mb-4">
+          <div class="flex justify-center md:justify-start gap-4 flex-wrap">
+            {stats.map((stat) => (
+              <div class="text-center">
+                <span class="text-lg font-bold block tracking-wide text-porto-purple">{stat.value}</span>
+                <span class="text-xs text-slate-400">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Description -->
+      <div class="mb-4">
+        <p class="font-light leading-relaxed text-slate-600 text-sm md:text-base">{description}</p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="text-center md:text-left flex gap-4 justify-center md:justify-start">
+        {buttonText && (
+          <button 
+            class="clickable-profile-btn font-normal text-porto-purple hover:text-porto-coral transition-colors duration-200 text-sm border border-porto-purple hover:border-porto-coral px-4 py-2 rounded-lg cursor-pointer"
+            data-profile-src={profileModalSrc || image}
+          >
+            {buttonText}
+          </button>
+        )}
+        <button 
+          class="clickable-expand-btn font-normal text-white bg-porto-purple hover:bg-porto-coral transition-colors duration-200 text-sm px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2"
+          data-curriculo-src={curriculumPdfUrl}
+          data-curriculo-page={(curriculumPage ?? pdfPage).toString()}
+        >
+          Ver Currículo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Image overlay styles */
+  .clickable-image {
+    cursor: pointer;
+    position: relative;
+  }
+
+  .image-overlay-click {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+  }
+
+  .clickable-image:hover .image-overlay-click {
+    opacity: 1;
+  }
+
+  .expand-icon {
+    color: white;
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  }
+
+  /* Button hover effects */
+  .clickable-profile-btn:hover,
+  .clickable-expand-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+</style>
+
+<script>
+  // Type declaration for window
+  interface StatItem {
+    label: string;
+    value: string;
+  }
+
+  declare global {
+    interface Window {
+      openCandidateModal?: (imageSrc: string, name: string, role: string, stats: StatItem[], description: string, isPdf?: boolean, pdfPage?: number) => void;
+    }
+  }
+
+  // Add click handlers for modal functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    const clickableImages = document.querySelectorAll(".clickable-image");
+    const profileButtons = document.querySelectorAll(".clickable-profile-btn");
+    const expandButtons = document.querySelectorAll(".clickable-expand-btn");
+
+    // Function to open modal with candidate data
+    function openCandidateModal(element: Element) {
+      const imageSrc = element.getAttribute("data-image-src");
+      const name = element.getAttribute("data-name");
+      const role = element.getAttribute("data-role");
+      const description = element.getAttribute("data-description");
+      const statsData = element.getAttribute("data-stats");
+      const isPdfData = element.getAttribute("data-is-pdf");
+      
+      let stats = [];
+      try {
+        stats = statsData ? JSON.parse(statsData) : [];
+      } catch (e) {
+        console.warn("Failed to parse stats data:", e);
+        stats = [];
+      }
+
+      const isPdf = isPdfData === "true";
+      const pdfPage = 1; // Could be made configurable via data attribute
+
+      if (imageSrc && name && role && window.openCandidateModal) {
+        window.openCandidateModal(imageSrc, name, role, stats, description || '', isPdf, pdfPage);
+      }
+    }
+
+    // Handle image clicks
+    clickableImages.forEach((image) => {
+      image.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openCandidateModal(this);
+      });
+    });
+
+    // Handle "Ver Perfil" button clicks
+    profileButtons.forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const profileSrc = this.getAttribute('data-profile-src');
+        const card = this.closest('.relative.max-w-2xl');
+        const clickableImage = card?.querySelector('.clickable-image');
+        if (!clickableImage) return;
+
+        const name = clickableImage.getAttribute("data-name") || '';
+        const role = clickableImage.getAttribute("data-role") || '';
+        const description = clickableImage.getAttribute("data-description") || '';
+        const statsData = clickableImage.getAttribute("data-stats");
+        let stats = [];
+        try { stats = statsData ? JSON.parse(statsData) : []; } catch { /* ignore */ }
+
+        if (profileSrc && window.openCandidateModal) {
+          window.openCandidateModal(profileSrc, name, role, stats, description, false, 1);
+        }
+      });
+    });
+
+    // Handle "Ver Currículo" button clicks
+    expandButtons.forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const curriculoSrc = this.getAttribute('data-curriculo-src') || '';
+        const curriculoPage = parseInt(this.getAttribute('data-curriculo-page') || '1');
+        const card = this.closest('.relative.max-w-2xl');
+        const clickableImage = card?.querySelector('.clickable-image');
+        if (!clickableImage) return;
+
+        const name = clickableImage.getAttribute("data-name") || '';
+        const role = clickableImage.getAttribute("data-role") || '';
+        const description = clickableImage.getAttribute("data-description") || '';
+        const statsData = clickableImage.getAttribute("data-stats");
+        let stats = [];
+        try { stats = statsData ? JSON.parse(statsData) : []; } catch { /* ignore */ }
+
+        if (curriculoSrc && window.openCandidateModal) {
+          window.openCandidateModal(curriculoSrc, name, role, stats, description, true, curriculoPage);
+        }
+      });
+    });
+  });
+</script>

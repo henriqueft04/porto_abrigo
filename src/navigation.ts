@@ -90,6 +90,6 @@ export const footerData = {
     { ariaLabel: 'Email', icon: 'tabler:mail', href: 'mailto:geral@portodeabrigo.com' },
   ],
   footNote: `
-    Candidatura <strong>Porto de Abrigo</strong> · Junta Regional do Porto 2025-2028 · Todos os direitos reservados.
+    Candidatura <strong>Porto de Abrigo</strong> · Junta Regional do Porto 2025-2028 - Site by Henrique Teixeira.
   `,
 };

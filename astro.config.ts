@@ -23,6 +23,8 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
+  site: 'https://henriqueft04.github.io',
+  base: '/porto_abrigo',
 
   integrations: [
     tailwind({

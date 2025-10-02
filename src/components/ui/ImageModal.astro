@@ -1,0 +1,1282 @@
+---
+// ImageModal.astro - A reusable modal component for displaying candidate images and PDFs
+---
+
+<div id="image-modal" class="modal-overlay hidden">
+  <div class="modal-container">
+    <button id="close-modal" class="close-button" aria-label="Close modal">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <!-- Navigation buttons -->
+    <button id="prev-candidate" class="nav-button nav-button-prev" aria-label="Previous candidate">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15,18 9,12 15,6"></polyline>
+      </svg>
+    </button>
+    
+    <button id="next-candidate" class="nav-button nav-button-next" aria-label="Next candidate">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9,18 15,12 9,6"></polyline>
+      </svg>
+    </button>
+    
+    <!-- View toggle button -->
+    <button id="toggle-view" class="toggle-view-button" aria-label="Toggle between CV and profile view">
+      <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14,2 14,8 20,8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10,9 9,9 8,9"></polyline>
+      </svg>
+    </button>
+    
+    <!-- PDF expand button -->
+    <button id="expand-pdf" class="expand-pdf-button" aria-label="Expand PDF to fullscreen">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
+    <div class="modal-content">
+      <div id="modal-image-container" class="modal-image-container">
+        <img id="modal-image" src="" alt="" class="modal-image hidden" />
+        <div id="modal-pdf-container" class="modal-pdf-container hidden"></div>
+      </div>
+      <div class="modal-info">
+        <h3 id="modal-title" class="modal-title"></h3>
+        <p id="modal-role" class="modal-role"></p>
+        <div id="modal-stats" class="modal-stats"></div>
+        <p id="modal-description" class="modal-description"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen PDF Modal -->
+<div id="fullscreen-pdf-modal" class="fullscreen-pdf-modal hidden">
+  <div class="fullscreen-pdf-container">
+    <button id="close-fullscreen-pdf" class="close-fullscreen-button" aria-label="Close fullscreen PDF">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div id="fullscreen-pdf-content" class="fullscreen-pdf-content"></div>
+  </div>
+</div>
+
+<script>
+  // Type declaration for window
+  interface StatItem {
+    label: string;
+    value: string;
+  }
+
+  interface PDFDocumentProxy {
+    getPage(pageNumber: number): Promise<PDFPageProxy>;
+  }
+
+  interface PDFRenderContext {
+    canvasContext: CanvasRenderingContext2D | null;
+    viewport: PDFPageViewport;
+  }
+
+  interface PDFPageProxy {
+    getViewport(params: { scale: number }): PDFPageViewport;
+    render(renderContext: PDFRenderContext): { promise: Promise<void> };
+  }
+
+  interface PDFPageViewport {
+    width: number;
+    height: number;
+  }
+
+  interface CandidateData {
+    imageSrc: string;
+    name: string;
+    role: string;
+    stats: StatItem[];
+    description: string;
+    isPdf: boolean;
+    pdfPage: number;
+  }
+
+  declare global {
+    interface Window {
+      openCandidateModal?: (imageSrc: string, name: string, role: string, stats: StatItem[], description: string, isPdf?: boolean, pdfPage?: number) => void;
+      pdfjsLib?: {
+        getDocument(url: string): { promise: Promise<PDFDocumentProxy> };
+        GlobalWorkerOptions: { workerSrc: string };
+      };
+      loadPDFInCanvas?: (canvasElement: HTMLCanvasElement) => Promise<void>;
+      modalPDFInitialized?: boolean;
+      currentCandidateIndex?: number;
+      allCandidates?: CandidateData[];
+      currentViewMode?: 'cv' | 'profile';
+    }
+  }
+
+  // Load PDF.js from CDN and initialize
+  function loadPDFJS() {
+    return new Promise<void>((resolve, reject) => {
+      if (window.pdfjsLib) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = () => {
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          console.log('PDF.js loaded successfully for modal');
+          resolve();
+        } else {
+          reject(new Error('Failed to load PDF.js'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load PDF.js script'));
+      document.head.appendChild(script);
+    });
+  }
+
+  // Global function to load PDF in any canvas
+  window.loadPDFInCanvas = async function(canvasElement: HTMLCanvasElement) {
+    const pdfUrl = canvasElement.getAttribute('data-pdf-url');
+    const pageNumber = parseInt(canvasElement.getAttribute('data-page-number') || '1');
+    const maxWidth = parseInt(canvasElement.getAttribute('data-width') || '400');
+    const maxHeight = parseInt(canvasElement.getAttribute('data-height') || '600');
+    
+    const loadingElement = document.getElementById(`loading-${canvasElement.id}`);
+    const errorElement = document.getElementById(`error-${canvasElement.id}`);
+    
+    if (!pdfUrl) {
+      console.error('No PDF URL provided');
+      return;
+    }
+
+    try {
+      // Load PDF.js if not available
+      if (!window.pdfjsLib) {
+        console.log('PDF.js not loaded, loading now...');
+        await loadPDFJS();
+      }
+
+      if (!window.pdfjsLib) {
+        throw new Error('PDF.js failed to load');
+      }
+
+      // Decode the URL if it's encoded
+      const decodedUrl = decodeURIComponent(pdfUrl);
+      console.log('Loading PDF:', decodedUrl, 'Page:', pageNumber);
+      
+      const pdf = await window.pdfjsLib.getDocument(decodedUrl).promise;
+      const page = await pdf.getPage(pageNumber);
+      
+      const viewport = page.getViewport({ scale: 1.0 });
+      
+      // Calculate scale to fit within max dimensions while maintaining aspect ratio
+      const scaleX = maxWidth / viewport.width;
+      const scaleY = maxHeight / viewport.height;
+      const scale = Math.min(scaleX, scaleY);
+      
+      const scaledViewport = page.getViewport({ scale });
+      
+      // Set canvas dimensions
+      canvasElement.width = scaledViewport.width;
+      canvasElement.height = scaledViewport.height;
+      
+      // Force full width and height to fill container
+      canvasElement.style.width = '100%';
+      canvasElement.style.height = '100%';
+      canvasElement.style.maxWidth = 'none';
+      canvasElement.style.maxHeight = 'none';
+      canvasElement.style.objectFit = 'contain';
+      
+      const context = canvasElement.getContext('2d');
+      if (!context) {
+        throw new Error('Cannot get 2D context from canvas');
+      }
+      
+      const renderContext = {
+        canvasContext: context,
+        viewport: scaledViewport
+      };
+      
+      await page.render(renderContext).promise;
+      
+      // Hide loading, show canvas
+      if (loadingElement) loadingElement.classList.add('hidden');
+      canvasElement.style.display = 'block';
+      
+      console.log('PDF loaded successfully');
+      
+    } catch (error) {
+      console.error('Error loading PDF:', error);
+      if (loadingElement) loadingElement.classList.add('hidden');
+      if (errorElement) {
+        errorElement.classList.remove('hidden');
+        errorElement.innerHTML = '<p>Erro ao carregar PDF: ' + (error as Error).message + '</p>';
+      }
+    }
+  };
+
+  // Modal functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('image-modal');
+    const closeBtn = document.getElementById('close-modal');
+    const prevBtn = document.getElementById('prev-candidate');
+    const nextBtn = document.getElementById('next-candidate');
+    const toggleBtn = document.getElementById('toggle-view');
+    const toggleIcon = document.getElementById('toggle-icon');
+    const expandPdfBtn = document.getElementById('expand-pdf');
+    const fullscreenPdfModal = document.getElementById('fullscreen-pdf-modal');
+    const closeFullscreenBtn = document.getElementById('close-fullscreen-pdf');
+    const fullscreenPdfContent = document.getElementById('fullscreen-pdf-content');
+    const modalImage = document.getElementById('modal-image') as HTMLImageElement;
+    const modalPdfContainer = document.getElementById('modal-pdf-container');
+    const modalTitle = document.getElementById('modal-title');
+    const modalRole = document.getElementById('modal-role');
+    const modalStats = document.getElementById('modal-stats');
+    const modalDescription = document.getElementById('modal-description');
+
+    // Function to open modal
+    window.openCandidateModal = function(imageSrc: string, name: string, role: string, stats: StatItem[], description: string = '', isPdf: boolean = false, pdfPage: number = 1) {
+      if (modal && modalImage && modalPdfContainer && modalTitle && modalRole && modalStats && modalDescription) {
+        // Initialize candidates if not already done
+        if (!window.allCandidates || window.allCandidates.length === 0) {
+          initializeAllCandidates();
+        }
+        
+        // Find the current candidate in the array
+        const candidateIndex = window.allCandidates!.findIndex(c => c.name === name);
+        if (candidateIndex !== -1) {
+          window.currentCandidateIndex = candidateIndex;
+        } else {
+          // If not found, add to array (fallback)
+          const currentCandidate: CandidateData = {
+            imageSrc,
+            name,
+            role,
+            stats,
+            description,
+            isPdf,
+            pdfPage
+          };
+          window.allCandidates!.push(currentCandidate);
+          window.currentCandidateIndex = window.allCandidates!.length - 1;
+        }
+        
+        // Update navigation buttons
+        updateNavigationButtons();
+        
+        // Set initial view mode based on how modal was opened
+        window.currentViewMode = isPdf ? 'cv' : 'profile';
+        updateToggleButton();
+        
+        modalTitle.textContent = name;
+        modalRole.textContent = role;
+        modalDescription.textContent = description;
+        
+        // Handle image vs PDF display
+        if (isPdf) {
+          // Hide image, show PDF
+          modalImage.classList.add('hidden');
+          modalPdfContainer.classList.remove('hidden');
+          
+          // Clear any existing PDF content
+          modalPdfContainer.innerHTML = '';
+          
+          // Create PDF viewer element
+          const pdfViewer = document.createElement('canvas');
+          pdfViewer.id = `modal-pdf-canvas-${Math.random().toString(36).substr(2, 9)}`;
+          pdfViewer.setAttribute('data-pdf-url', imageSrc); // Don't encode here, let loadPDFInCanvas handle it
+          pdfViewer.setAttribute('data-page-number', pdfPage.toString());
+          pdfViewer.setAttribute('data-width', '1200');
+          pdfViewer.setAttribute('data-height', '1600');
+          pdfViewer.className = 'pdf-canvas';
+          modalPdfContainer.appendChild(pdfViewer);
+          
+          // Add loading indicator
+          const loadingDiv = document.createElement('div');
+          loadingDiv.id = `loading-${pdfViewer.id}`;
+          loadingDiv.className = 'pdf-loading';
+          loadingDiv.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p>Carregando PDF...</p>
+          `;
+          modalPdfContainer.appendChild(loadingDiv);
+          
+          // Add error indicator
+          const errorDiv = document.createElement('div');
+          errorDiv.id = `error-${pdfViewer.id}`;
+          errorDiv.className = 'pdf-error hidden';
+          errorDiv.innerHTML = '<p>Erro ao carregar PDF</p>';
+          modalPdfContainer.appendChild(errorDiv);
+          
+          // Trigger PDF loading using the global function
+          if (window.loadPDFInCanvas) {
+            window.loadPDFInCanvas(pdfViewer).catch(error => {
+              console.error('Failed to load PDF in modal:', error);
+              errorDiv.classList.remove('hidden');
+              loadingDiv.classList.add('hidden');
+            });
+          } else {
+            console.error('loadPDFInCanvas function not available');
+            errorDiv.classList.remove('hidden');
+            loadingDiv.classList.add('hidden');
+          }
+        } else {
+          // Show image, hide PDF
+          modalImage.classList.remove('hidden');
+          modalPdfContainer.classList.add('hidden');
+          modalImage.src = imageSrc;
+          modalImage.alt = name;
+        }
+        
+        // Create stats HTML
+        if (stats && stats.length > 0) {
+          const statsHTML = stats.map(stat => 
+            `<div class="stat-item">
+              <span class="stat-value">${stat.value}</span>
+              <span class="stat-label">${stat.label}</span>
+            </div>`
+          ).join('');
+          modalStats.innerHTML = `<div class="stats-grid">${statsHTML}</div>`;
+        } else {
+          modalStats.innerHTML = '';
+        }
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+      }
+    };
+
+
+    // Function to close modal
+    function closeModal() {
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = ''; // Restore scroll
+      }
+    }
+
+    // Close button click
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Click outside modal to close
+    modal?.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Click outside fullscreen PDF to close
+    fullscreenPdfModal?.addEventListener('click', function(e) {
+      if (e.target === fullscreenPdfModal) {
+        closeFullscreenPDF();
+      }
+    });
+
+    // Navigation functions
+    function updateNavigationButtons() {
+      if (!window.allCandidates || window.currentCandidateIndex === undefined) return;
+      
+      const totalCandidates = window.allCandidates.length;
+      const currentIndex = window.currentCandidateIndex;
+      
+      // Update button states
+      if (prevBtn) {
+        prevBtn.style.display = totalCandidates > 1 ? 'flex' : 'none';
+        (prevBtn as HTMLButtonElement).disabled = currentIndex === 0;
+      }
+      
+      if (nextBtn) {
+        nextBtn.style.display = totalCandidates > 1 ? 'flex' : 'none';
+        (nextBtn as HTMLButtonElement).disabled = currentIndex === totalCandidates - 1;
+      }
+    }
+    
+    function navigateToCandidate(direction: 'prev' | 'next') {
+      if (!window.allCandidates || window.currentCandidateIndex === undefined) return;
+      
+      const totalCandidates = window.allCandidates.length;
+      let newIndex = window.currentCandidateIndex;
+      
+      if (direction === 'prev' && newIndex > 0) {
+        newIndex--;
+      } else if (direction === 'next' && newIndex < totalCandidates - 1) {
+        newIndex++;
+      } else {
+        return; // Can't navigate further
+      }
+      
+      const candidate = window.allCandidates[newIndex];
+      if (candidate) {
+        window.currentCandidateIndex = newIndex;
+        updateNavigationButtons();
+        
+        // Update modal content
+        modalTitle!.textContent = candidate.name;
+        modalRole!.textContent = candidate.role;
+        modalDescription!.textContent = candidate.description;
+        
+        // Update view based on current mode
+        updateView();
+        
+        // Update stats
+        if (candidate.stats && candidate.stats.length > 0) {
+          const statsHTML = candidate.stats.map(stat => 
+            `<div class="stat-item">
+              <span class="stat-value">${stat.value}</span>
+              <span class="stat-label">${stat.label}</span>
+            </div>`
+          ).join('');
+          modalStats!.innerHTML = `<div class="stats-grid">${statsHTML}</div>`;
+        } else {
+          modalStats!.innerHTML = '';
+        }
+      }
+    }
+    
+    // Toggle view functionality
+    function updateToggleButton() {
+      if (!toggleIcon) return;
+      
+      if (window.currentViewMode === 'cv') {
+        // Show profile icon (user icon)
+        toggleIcon.innerHTML = `
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        `;
+        toggleBtn?.setAttribute('aria-label', 'Switch to profile view');
+      } else {
+        // Show CV icon (document icon)
+        toggleIcon.innerHTML = `
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14,2 14,8 20,8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10,9 9,9 8,9"></polyline>
+        `;
+        toggleBtn?.setAttribute('aria-label', 'Switch to CV view');
+      }
+    }
+    
+    function updateView() {
+      if (!window.allCandidates || window.currentCandidateIndex === undefined) return;
+      
+      const candidate = window.allCandidates[window.currentCandidateIndex];
+      if (!candidate) return;
+      
+      if (window.currentViewMode === 'cv') {
+        // Show PDF
+        modalImage!.classList.add('hidden');
+        modalPdfContainer!.classList.remove('hidden');
+        
+        // Clear and recreate PDF content
+        modalPdfContainer!.innerHTML = '';
+        
+        const pdfViewer = document.createElement('canvas');
+        pdfViewer.id = `modal-pdf-canvas-${Math.random().toString(36).substr(2, 9)}`;
+        pdfViewer.setAttribute('data-pdf-url', candidate.imageSrc);
+        pdfViewer.setAttribute('data-page-number', candidate.pdfPage.toString());
+        pdfViewer.setAttribute('data-width', '1200');
+        pdfViewer.setAttribute('data-height', '1600');
+        pdfViewer.className = 'pdf-canvas';
+        modalPdfContainer!.appendChild(pdfViewer);
+        
+        // Add loading and error indicators
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = `loading-${pdfViewer.id}`;
+        loadingDiv.className = 'pdf-loading';
+        loadingDiv.innerHTML = `
+          <div class="loading-spinner"></div>
+          <p>Carregando PDF...</p>
+        `;
+        modalPdfContainer!.appendChild(loadingDiv);
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.id = `error-${pdfViewer.id}`;
+        errorDiv.className = 'pdf-error hidden';
+        errorDiv.innerHTML = '<p>Erro ao carregar PDF</p>';
+        modalPdfContainer!.appendChild(errorDiv);
+        
+        // Load PDF
+        if (window.loadPDFInCanvas) {
+          window.loadPDFInCanvas(pdfViewer).catch(error => {
+            console.error('Failed to load PDF in modal:', error);
+            errorDiv.classList.remove('hidden');
+            loadingDiv.classList.add('hidden');
+          });
+        }
+      } else {
+        // Show profile image
+        modalImage!.classList.remove('hidden');
+        modalPdfContainer!.classList.add('hidden');
+        
+        // Get profile image from the original card data
+        const candidateCards = document.querySelectorAll('.clickable-image');
+        let profileImageSrc = candidate.imageSrc; // fallback to PDF
+        
+        candidateCards.forEach((card) => {
+          const cardName = card.getAttribute('data-name');
+          if (cardName === candidate.name) {
+            // Try to get the resolved profile image first
+            const profileSrc = card.getAttribute('data-profile-src');
+            if (profileSrc) {
+              profileImageSrc = profileSrc;
+            } else {
+              // Fallback to the main image
+              const originalImageSrc = card.getAttribute('data-image-src');
+              if (originalImageSrc) {
+                profileImageSrc = originalImageSrc;
+              }
+            }
+          }
+        });
+        
+        modalImage!.src = profileImageSrc;
+        modalImage!.alt = candidate.name;
+      }
+    }
+    
+    function toggleView() {
+      if (window.currentViewMode === 'cv') {
+        window.currentViewMode = 'profile';
+      } else {
+        window.currentViewMode = 'cv';
+      }
+      
+      updateToggleButton();
+      updateView();
+    }
+    
+    // Expand PDF functionality
+    function openFullscreenPDF() {
+      if (!window.allCandidates || window.currentCandidateIndex === undefined) return;
+      
+      const candidate = window.allCandidates[window.currentCandidateIndex];
+      if (!candidate) return;
+      
+      // Clear previous content
+      fullscreenPdfContent!.innerHTML = '';
+      
+      // Create PDF viewer for fullscreen
+      const pdfViewer = document.createElement('canvas');
+      pdfViewer.id = `fullscreen-pdf-canvas-${Math.random().toString(36).substr(2, 9)}`;
+      pdfViewer.setAttribute('data-pdf-url', candidate.imageSrc);
+      pdfViewer.setAttribute('data-page-number', candidate.pdfPage.toString());
+      pdfViewer.setAttribute('data-width', '1920');
+      pdfViewer.setAttribute('data-height', '1080');
+      pdfViewer.className = 'fullscreen-pdf-canvas';
+      fullscreenPdfContent!.appendChild(pdfViewer);
+      
+      // Add loading indicator
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = `loading-${pdfViewer.id}`;
+      loadingDiv.className = 'fullscreen-pdf-loading';
+      loadingDiv.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>Carregando PDF...</p>
+      `;
+      fullscreenPdfContent!.appendChild(loadingDiv);
+      
+      // Add error indicator
+      const errorDiv = document.createElement('div');
+      errorDiv.id = `error-${pdfViewer.id}`;
+      errorDiv.className = 'fullscreen-pdf-error hidden';
+      errorDiv.innerHTML = '<p>Erro ao carregar PDF</p>';
+      fullscreenPdfContent!.appendChild(errorDiv);
+      
+      // Show fullscreen modal
+      fullscreenPdfModal!.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      // Load PDF
+      if (window.loadPDFInCanvas) {
+        window.loadPDFInCanvas(pdfViewer).catch(error => {
+          console.error('Failed to load PDF in fullscreen:', error);
+          errorDiv.classList.remove('hidden');
+          loadingDiv.classList.add('hidden');
+        });
+      }
+    }
+    
+    function closeFullscreenPDF() {
+      fullscreenPdfModal!.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    
+    // Navigation button event listeners
+    prevBtn?.addEventListener('click', () => navigateToCandidate('prev'));
+    nextBtn?.addEventListener('click', () => navigateToCandidate('next'));
+    toggleBtn?.addEventListener('click', toggleView);
+    expandPdfBtn?.addEventListener('click', openFullscreenPDF);
+    closeFullscreenBtn?.addEventListener('click', closeFullscreenPDF);
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (!fullscreenPdfModal?.classList.contains('hidden')) {
+          closeFullscreenPDF();
+        } else if (!modal?.classList.contains('hidden')) {
+          closeModal();
+        }
+      } else if (!modal?.classList.contains('hidden') && !fullscreenPdfModal?.classList.contains('hidden')) {
+        if (e.key === 'ArrowLeft') {
+          navigateToCandidate('prev');
+        } else if (e.key === 'ArrowRight') {
+          navigateToCandidate('next');
+        }
+      }
+    });
+  });
+
+  // Function to collect all candidates from the page
+  function collectAllCandidates() {
+    const allCandidates: CandidateData[] = [];
+    
+    // Find all candidate cards on the page
+    const candidateCards = document.querySelectorAll('.clickable-image');
+    
+    candidateCards.forEach((card) => {
+      const imageSrc = card.getAttribute('data-image-src');
+      const name = card.getAttribute('data-name');
+      const role = card.getAttribute('data-role');
+      const description = card.getAttribute('data-description');
+      const statsData = card.getAttribute('data-stats');
+      
+      if (imageSrc && name && role) {
+        let stats = [];
+        try {
+          stats = statsData ? JSON.parse(statsData) : [];
+        } catch (e) {
+          console.warn('Failed to parse stats data:', e);
+        }
+        
+        const pdfPageData = card.getAttribute('data-pdf-page');
+        const pdfPage = pdfPageData ? parseInt(pdfPageData) : 1;
+        
+        // For navigation, we want to show the curriculum PDF, not the profile image
+        // Check if there's a curriculum PDF URL in the data attributes
+        const curriculumPdfData = card.getAttribute('data-curriculum-pdf');
+        const curriculumPdfUrl = curriculumPdfData || '/candidatura à JRP projeto.pdf';
+        
+        allCandidates.push({
+          imageSrc: curriculumPdfUrl, // Use curriculum PDF for navigation
+          name,
+          role,
+          stats,
+          description: description || '',
+          isPdf: true, // Always show PDF in navigation
+          pdfPage
+        });
+      }
+    });
+    
+    return allCandidates;
+  }
+
+  // Initialize all candidates when page loads
+  function initializeAllCandidates() {
+    if (window.allCandidates && window.allCandidates.length > 0) {
+      return; // Already initialized
+    }
+    
+    const candidates = collectAllCandidates();
+    window.allCandidates = candidates;
+    window.currentCandidateIndex = 0;
+    
+    console.log(`Initialized ${candidates.length} candidates for navigation`);
+  }
+
+  // Pre-load PDF.js library for better performance
+  if (typeof window !== 'undefined' && !window.modalPDFInitialized) {
+    window.modalPDFInitialized = true;
+    loadPDFJS().catch(error => {
+      console.warn('Failed to pre-load PDF.js:', error);
+    });
+  }
+
+  // Initialize candidates when DOM is ready
+  if (typeof window !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAllCandidates);
+    } else {
+      initializeAllCandidates();
+    }
+  }
+</script>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .modal-overlay.hidden {
+    display: none;
+  }
+
+  .modal-container {
+    position: relative;
+    max-width: 95vw;
+    max-height: 95vh;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: scaleIn 0.3s ease-out;
+    display: flex;
+    flex-direction: row;
+    width: 90vw;
+    height: 90vh;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+  }
+
+  .close-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+
+  .close-button svg {
+    color: #374151;
+  }
+
+  /* Navigation buttons */
+  .nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .nav-button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .nav-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+  }
+
+  .nav-button svg {
+    color: #374151;
+    width: 24px;
+    height: 24px;
+  }
+
+  .nav-button-prev {
+    left: 1rem;
+  }
+
+  .nav-button-next {
+    right: 1rem;
+  }
+
+  /* Toggle view button */
+  .toggle-view-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .toggle-view-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+
+  .toggle-view-button svg {
+    color: #374151;
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Expand PDF button */
+  .expand-pdf-button {
+    position: absolute;
+    top: 1rem;
+    left: 4rem;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .expand-pdf-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+
+  .expand-pdf-button svg {
+    color: #374151;
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Fullscreen PDF Modal */
+  .fullscreen-pdf-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .fullscreen-pdf-modal.hidden {
+    display: none;
+  }
+
+  .fullscreen-pdf-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .close-fullscreen-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+  }
+
+  .close-fullscreen-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+
+  .close-fullscreen-button svg {
+    color: #374151;
+  }
+
+  .fullscreen-pdf-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: auto;
+    padding: 0;
+  }
+
+  .fullscreen-pdf-canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .fullscreen-pdf-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: inherit;
+  }
+
+  .fullscreen-pdf-loading.hidden,
+  .fullscreen-pdf-error.hidden {
+    display: none;
+  }
+
+  .fullscreen-pdf-error {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244, 63, 94, 0.1);
+    color: #dc2626;
+    border-radius: inherit;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .modal-image-container {
+    width: 65%;
+    height: 100%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: #f8f9fa;
+    padding: 0;
+  }
+
+  .modal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 75% center;
+    display: block;
+  }
+
+  .modal-pdf-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .modal-pdf-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain;
+    display: block;
+    flex: 1;
+  }
+
+  .pdf-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: inherit;
+  }
+
+  .pdf-loading.hidden,
+  .pdf-error.hidden {
+    display: none;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  .pdf-error {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244, 63, 94, 0.1);
+    color: #dc2626;
+    border-radius: inherit;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .modal-info {
+    padding: 2rem;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+    color: white;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 300px;
+    width: 35%;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 0 0.5rem 0;
+    color: #FEF3C7;
+  }
+
+  .modal-role {
+    font-size: 1.1rem;
+    margin: 0 0 1.5rem 0;
+    opacity: 0.9;
+    color: #FEF3C7;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #FEF3C7;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    color: white;
+  }
+
+  .modal-description {
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .modal-container {
+      max-width: 95vw;
+      max-height: 95vh;
+      flex-direction: column;
+      width: 95vw;
+      height: 95vh;
+    }
+
+    .modal-content {
+      flex-direction: column;
+    }
+
+    .modal-image-container {
+      width: 100%;
+      height: 50%;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: 100%;
+    }
+
+    .modal-info {
+      padding: 1.5rem;
+      min-width: auto;
+      width: 100%;
+      height: 50%;
+    }
+
+    .nav-button {
+      width: 40px;
+      height: 40px;
+    }
+
+    .nav-button-prev {
+      left: 0.5rem;
+    }
+
+    .nav-button-next {
+      right: 0.5rem;
+    }
+
+    .toggle-view-button {
+      width: 40px;
+      height: 40px;
+      top: 0.5rem;
+      left: 0.5rem;
+    }
+
+    .expand-pdf-button {
+      width: 40px;
+      height: 40px;
+      top: 0.5rem;
+      left: 3rem;
+    }
+
+    .fullscreen-pdf-modal {
+      padding: 0.5rem;
+    }
+
+    .fullscreen-pdf-container {
+      border-radius: 4px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+    }
+
+    .modal-role {
+      font-size: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat-item {
+      padding: 0.75rem;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+    }
+
+    .modal-description {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<!-- Add global type declaration for TypeScript -->
+<script is:inline>
+  if (typeof window !== 'undefined') {
+    window.openCandidateModal = window.openCandidateModal || function() {};
+  }
+</script>
