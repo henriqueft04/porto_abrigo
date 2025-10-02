@@ -46,9 +46,9 @@ if (
   (_image.startsWith('http://') || _image.startsWith('https://')) &&
   isUnpicCompatible(_image)
 ) {
-  image = await getImagesOptimized(_image, props, unpicOptimizer);
+  image = await getImagesOptimized(_image, { ...props, format: 'webp' }, unpicOptimizer);
 } else if (_image) {
-  image = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+  image = await getImagesOptimized(_image, { ...props, format: 'webp' }, astroAssetsOptimizer);
 }
 ---
 

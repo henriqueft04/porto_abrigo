@@ -2,6 +2,7 @@
 import Image from '~/components/common/Image.astro';
 import PDFViewer from '~/components/ui/PDFViewer.astro';
 import { findImage } from '~/utils/images';
+import { getPermalink } from '~/utils/permalinks';
 
 export interface Props {
   name: string;
@@ -30,7 +31,7 @@ const {
   isPdf = false,
   pdfPage = 1,
   profileImageName,
-  curriculumPdfUrl = '/candidatura à JRP projeto.pdf',
+  curriculumPdfUrl = getPermalink('/candidatura à JRP projeto.pdf'),
   curriculumPage,
   stats = [],
   buttonText = "Ver Perfil"
@@ -77,14 +78,13 @@ const profileModalSrc = resolvedProfileImage && typeof resolvedProfileImage === 
           </div>
         ) : resolvedImage ? (
           <div class="relative clickable-image" data-image-src={typeof resolvedImage === 'string' ? resolvedImage : (resolvedImage as Record<string, unknown>).src as string} data-name={name} data-role={role} data-description={description} data-stats={JSON.stringify(stats)} data-pdf-page={curriculumPage} data-curriculum-pdf={curriculumPdfUrl} data-profile-src={profileModalSrc}>
-            <Image
-              src={resolvedImage}
+            <img
+              src={typeof resolvedImage === 'string' ? resolvedImage : (resolvedImage as Record<string, unknown>).src as string}
               alt={name}
               class="shadow-2xl rounded-3xl w-32 h-80 md:w-40 md:h-80 lg:w-48 lg:h-80 object-cover border-4 border-white cursor-pointer transition-transform duration-300 hover:scale-105"
               style="object-position: 75% center;"
-              width={192}
-              height={320}
               loading="lazy"
+              
             />
             <div class="image-overlay-click">
               <svg

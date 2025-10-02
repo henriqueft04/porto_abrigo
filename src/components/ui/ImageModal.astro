@@ -70,6 +70,8 @@
 </div>
 
 <script>
+import { getPermalink } from "~/utils/permalinks";
+
   // Type declaration for window
   interface StatItem {
     label: string;
@@ -665,7 +667,7 @@
         // For navigation, we want to show the curriculum PDF, not the profile image
         // Check if there's a curriculum PDF URL in the data attributes
         const curriculumPdfData = card.getAttribute('data-curriculum-pdf');
-        const curriculumPdfUrl = curriculumPdfData || '/candidatura à JRP projeto.pdf';
+        const curriculumPdfUrl = curriculumPdfData || getPermalink('/candidatura à JRP projeto.pdf');
         
         allCandidates.push({
           imageSrc: curriculumPdfUrl, // Use curriculum PDF for navigation

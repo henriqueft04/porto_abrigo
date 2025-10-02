@@ -1,6 +1,6 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
-
+import { getPermalink } from '~/utils/permalinks';
 import Hero from '~/components/widgets/Hero.astro';
 import Note from '~/components/widgets/Note.astro';
 import Features from '~/components/widgets/Features.astro';
@@ -267,7 +267,7 @@ const secretariosRegionais = [
 
   <!-- Candidatos Principais Cards Section -->
   
-  <section class="py-12 md:py-20 bg-porto-coral/10">
+  <section id="lideranca" class="py-12 md:py-20 bg-porto-coral/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-12">
         <p class="text-base text-porto-yellow font-bold tracking-wide uppercase mb-2">Liderança</p>
@@ -286,7 +286,7 @@ const secretariosRegionais = [
             description={candidato.description}
             image={candidato.image}
             profileImageName={candidato.profileImageName}
-            curriculumPdfUrl={'/candidatura à JRP projeto.pdf'}
+            curriculumPdfUrl={getPermalink('/candidatura à JRP projeto.pdf')}
             curriculumPage={candidato.curriculumPage}
             stats={candidato.stats}
             buttonText="Ver Perfil"
@@ -317,7 +317,7 @@ const secretariosRegionais = [
             description={secretario.description}
             image={secretario.image}
             profileImageName={secretario.profileImageName}
-            curriculumPdfUrl={'/candidatura à JRP projeto.pdf'}
+            curriculumPdfUrl={getPermalink('/candidatura à JRP projeto.pdf')}
             curriculumPage={secretario.curriculumPage}
             stats={secretario.stats}
             buttonText="Ver Perfil"

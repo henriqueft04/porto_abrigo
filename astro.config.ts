@@ -24,7 +24,7 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 export default defineConfig({
   output: 'static',
   site: 'https://henriqueft04.github.io',
-  base: '/porto_abrigo',
+  base: process.env.NODE_ENV === 'production' ? '/porto_abrigo' : '/',
 
   integrations: [
     tailwind(),
@@ -75,7 +75,7 @@ export default defineConfig({
     domains: ['cdn.pixabay.com'],
     service: {
       entrypoint: 'astro/assets/services/sharp'
-    }
+    },
   },
 
   markdown: {
