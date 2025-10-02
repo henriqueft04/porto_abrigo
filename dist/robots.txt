@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://porto-de-abrigo.com/sitemap-index.xml
