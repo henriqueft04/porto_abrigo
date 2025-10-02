@@ -23,7 +23,7 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
-  site: 'https://henriqueft04.github.io/porto_abrigo',
+  site: 'https://henriqueft04.github.io',
   base: '/porto_abrigo',
 
   integrations: [
@@ -90,6 +90,9 @@ export default defineConfig({
       alias: {
         '~': path.resolve(__dirname, './src'),
       },
+    },
+    build: {
+      assetsInlineLimit: 0,
     },
   },
 });
