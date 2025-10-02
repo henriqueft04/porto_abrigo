@@ -1,7 +1,7 @@
 site:
   name: Porto de Abrigo
   site: 'https://porto-de-abrigo.com'
-  base: '/'
+  base: '/porto_abrigo'
   trailingSlash: false
 
   googleSiteVerificationId: false
