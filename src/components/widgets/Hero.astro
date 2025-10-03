@@ -14,12 +14,11 @@ const {
   image = await Astro.slots.render('image'),
 
   id,
-  bg = await Astro.slots.render('bg'),
 } = Astro.props;
 ---
 
 <section class="z-0 relative md:-mt-[76px] not-prose" {...id ? { id } : {}}>
-  <div class="absolute inset-0 -top-20 pointer-events-none bg-porto-coral/10 aria-hidden="true">
+  <div class="absolute inset-0 -top-20 pointer-events-none bg-porto-coral/10" aria-hidden="true">
   </div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 ">
     <div class="pt-0 md:pt-[76px] pointer-events-none"></div>
