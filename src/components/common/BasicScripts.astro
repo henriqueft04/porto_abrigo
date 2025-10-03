@@ -2,11 +2,12 @@
 ---
 
 <script is:inline>
-  if (window.basic_script) {
-    return;
-  }
+  (function() {
+    if (window.basic_script) {
+      return;
+    }
 
-  window.basic_script = true;
+    window.basic_script = true;
 
   function attachEvent(selector, event, fn) {
     const matches = typeof selector === 'string' ? document.querySelectorAll(selector) : selector;
@@ -88,10 +89,17 @@
 
     function applyHeaderStylesOnScroll() {
       const header = document.querySelector('#header[data-aw-sticky-header]');
-      if (!header) return;
+      console.log('Header element found:', header);
+      console.log('Scroll position:', lastKnownScrollPosition);
+      if (!header) {
+        console.log('No header element found with selector #header[data-aw-sticky-header]');
+        return;
+      }
       if (lastKnownScrollPosition > 60 && !header.classList.contains('scroll')) {
+        console.log('Adding scroll class');
         header.classList.add('scroll');
       } else if (lastKnownScrollPosition <= 60 && header.classList.contains('scroll')) {
+        console.log('Removing scroll class');
         header.classList.remove('scroll');
       }
       ticking = false;
@@ -128,6 +136,7 @@
     onLoad();
     onPageShow();
   });
+  })();
 </script>
 
 <script is:inline>
