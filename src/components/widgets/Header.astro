@@ -14,6 +14,7 @@ interface Link {
   href?: string;
   ariaLabel?: string;
   icon?: string;
+  onclick?: string;
 }
 
 interface MenuLink extends Link {
@@ -81,7 +82,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname.replace(new RegExp
         class="flex flex-col md:flex-row md:self-center w-full md:w-auto text-xl md:text-[0.9375rem] tracking-[0.01rem] font-medium md:justify-center"
       >
         {
-          links.map(({ text, href, links }) => (
+          links.map(({ text, href, links, onclick }) => (
             <li class={links?.length ? 'dropdown' : ''}>
               {links?.length ? (
                 <>
@@ -93,7 +94,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname.replace(new RegExp
                     <Icon name="tabler:chevron-down" class="w-3.5 h-3.5 ml-0.5 rtl:ml-0 rtl:mr-0.5 hidden md:inline" />
                   </button>
                   <ul class="dropdown-menu md:backdrop-blur-md rounded md:absolute pl-4 md:pl-0 md:hidden font-medium md:bg-white/90 md:min-w-[200px] drop-shadow-xl">
-                    {links.map(({ text: text2, href: href2 }) => (
+                    {links.map(({ text: text2, href: href2, onclick: onclick2 }) => (
                       <li>
                         <a
                           class:list={[
@@ -101,6 +102,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname.replace(new RegExp
                             { 'aw-link-active': href2 === currentPath },
                           ]}
                           href={href2}
+                          {...onclick2 ? { onclick: onclick2 } : {}}
                         >
                           {text2}
                         </a>
@@ -115,6 +117,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname.replace(new RegExp
                     { 'aw-link-active': href === currentPath },
                   ]}
                   href={href}
+                  {...onclick ? { onclick: onclick } : {}}
                 >
                   {text}
                 </a>

@@ -1,0 +1,375 @@
+---
+export interface Props {
+  pdfUrl: string;
+  title?: string;
+}
+
+const { pdfUrl, title = "PDF Viewer" } = Astro.props;
+---
+
+<!-- PDF Modal -->
+<div id="pdf-modal" class="pdf-modal-overlay hidden">
+  <div class="pdf-modal-container">
+    <button id="close-pdf-modal" class="close-pdf-button" aria-label="Close PDF modal">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <div class="pdf-modal-header">
+      <h2 id="pdf-modal-title">{title}</h2>
+    </div>
+    
+    <div class="pdf-modal-content">
+      <div id="pdf-pages-container" class="pdf-pages-container">
+        <!-- PDF pages will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .pdf-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .pdf-modal-overlay.hidden {
+    display: none;
+  }
+
+  .pdf-modal-container {
+    background: white;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .close-pdf-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+    transition: background-color 0.2s;
+  }
+
+  .close-pdf-button:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .pdf-modal-header {
+    padding: 20px 60px 20px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+
+  .pdf-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .pdf-modal-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pdf-pages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .pdf-page {
+    max-width: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    background: white;
+  }
+
+  .pdf-page canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .pdf-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #6b7280;
+  }
+
+  .pdf-loading.hidden {
+    display: none;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  .pdf-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #dc2626;
+    background: rgba(244, 63, 94, 0.1);
+    border-radius: 4px;
+    margin: 20px;
+  }
+
+  .pdf-error.hidden {
+    display: none;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .pdf-modal-container {
+      max-width: 95vw;
+      max-height: 95vh;
+    }
+    
+    .pdf-modal-header {
+      padding: 15px 50px 15px 15px;
+    }
+    
+    .pdf-modal-header h2 {
+      font-size: 1.25rem;
+    }
+    
+    .pdf-pages-container {
+      padding: 15px;
+      gap: 15px;
+    }
+  }
+</style>
+
+<script>
+  // Type declarations for PDF.js
+  interface PDFDocumentProxy {
+    getPage(pageNumber: number): Promise<PDFPageProxy>;
+    numPages: number;
+  }
+
+  interface PDFRenderContext {
+    canvasContext: CanvasRenderingContext2D | null;
+    viewport: PDFPageViewport;
+  }
+
+  interface PDFPageProxy {
+    getViewport(params: { scale: number }): PDFPageViewport;
+    render(renderContext: PDFRenderContext): { promise: Promise<void> };
+  }
+
+  interface PDFPageViewport {
+    width: number;
+    height: number;
+  }
+
+  declare global {
+    interface Window {
+      pdfjsLib?: {
+        getDocument(url: string): { promise: Promise<PDFDocumentProxy> };
+        GlobalWorkerOptions: { workerSrc: string };
+      };
+      openPdfModal?: (pdfUrl: string, title?: string) => void;
+      closePdfModal?: () => void;
+    }
+  }
+
+  // Load PDF.js from CDN
+  function loadPDFJS() {
+    return new Promise<void>((resolve, reject) => {
+      if (window.pdfjsLib) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = () => {
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          console.log('PDF.js loaded successfully');
+          resolve();
+        } else {
+          reject(new Error('Failed to load PDF.js'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load PDF.js script'));
+      document.head.appendChild(script);
+    });
+  }
+
+  // Function to open PDF modal
+  window.openPdfModal = async function(pdfUrl: string, title: string = 'PDF Viewer') {
+    const modal = document.getElementById('pdf-modal');
+    const titleElement = document.getElementById('pdf-modal-title');
+    const pagesContainer = document.getElementById('pdf-pages-container');
+    
+    if (!modal || !titleElement || !pagesContainer) {
+      console.error('PDF modal elements not found');
+      return;
+    }
+
+    // Set title
+    titleElement.textContent = title;
+    
+    // Clear previous content
+    pagesContainer.innerHTML = '';
+    
+    // Show loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'pdf-loading';
+    loadingDiv.innerHTML = '<div class="loading-spinner"></div><p>Carregando PDF...</p>';
+    pagesContainer.appendChild(loadingDiv);
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      // Load PDF.js if not available
+      if (!window.pdfjsLib) {
+        await loadPDFJS();
+      }
+
+      if (!window.pdfjsLib) {
+        throw new Error('PDF.js not available');
+      }
+
+      // Load PDF document
+      const pdf = await window.pdfjsLib.getDocument(pdfUrl).promise;
+      console.log(`PDF loaded: ${pdf.numPages} pages`);
+
+      // Remove loading
+      loadingDiv.remove();
+
+      // Render all pages
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.5 }); // Scale for better readability
+        
+        // Create canvas for this page
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        if (!context) {
+          throw new Error('Cannot get 2D context from canvas');
+        }
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.maxWidth = '100%';
+        canvas.style.height = 'auto';
+
+        // Create page container
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'pdf-page';
+        pageDiv.appendChild(canvas);
+        pagesContainer.appendChild(pageDiv);
+
+        // Render page
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+
+        await page.render(renderContext).promise;
+      }
+
+      console.log('All PDF pages rendered successfully');
+
+    } catch (error) {
+      console.error('Error loading PDF:', error);
+      
+      // Remove loading and show error
+      loadingDiv.remove();
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'pdf-error';
+      errorDiv.innerHTML = `<p>Erro ao carregar PDF: ${(error as Error).message}</p>`;
+      pagesContainer.appendChild(errorDiv);
+    }
+  };
+
+  // Function to close PDF modal
+  window.closePdfModal = function() {
+    const modal = document.getElementById('pdf-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  };
+
+  // Close modal when clicking close button
+  document.addEventListener('DOMContentLoaded', function() {
+    const closeButton = document.getElementById('close-pdf-modal');
+    const modal = document.getElementById('pdf-modal');
+    
+    if (closeButton) {
+      closeButton.addEventListener('click', window.closePdfModal);
+    }
+    
+    // Close modal when clicking outside
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          window.closePdfModal();
+        }
+      });
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+        window.closePdfModal();
+      }
+    });
+  });
+</script>

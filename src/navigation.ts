@@ -15,7 +15,7 @@ export const headerData = {
         },
         {
           text: 'Propostas Detalhadas',
-          href: getPermalink('/#propostas-detalhadas'),
+          onclick: 'window.openPdfModal && window.openPdfModal("/propostas.pdf", "Propostas Detalhadas")',
         },
         {
           text: 'Compromissos',
