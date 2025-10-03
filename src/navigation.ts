@@ -64,20 +64,19 @@ export const footerData = {
     {
       title: 'Região do Porto',
       links: [
-        { text: 'Núcleo Cidade do Porto', href: '#' },
-        { text: 'Núcleo Este', href: '#' },
-        { text: 'Núcleo Litoral', href: '#' },
-        { text: 'Núcleo Norte', href: '#' },
-        { text: 'Núcleo Centro Norte', href: '#' },
-        { text: 'Núcleo Terras de Santa Maria', href: '#' },
+        { text: 'Núcleo Cidade do Porto'},
+        { text: 'Núcleo Este' },
+        { text: 'Núcleo Litoral' },
+        { text: 'Núcleo Norte' },
+        { text: 'Núcleo Centro Norte' },
+        { text: 'Núcleo Terras de Santa Maria' },
       ],
     },
     {
       title: 'Escutismo',
       links: [
         { text: 'Corpo Nacional de Escutas', href: 'https://www.escutismo.pt', target: '_blank' },
-        { text: 'Região do Porto', href: '#' },
-        { text: 'WOSM', href: 'https://www.scout.org', target: '_blank' },
+        { text: 'Região do Porto', href: 'https://porto.escutismo.pt/' },
       ],
     },
   ],
