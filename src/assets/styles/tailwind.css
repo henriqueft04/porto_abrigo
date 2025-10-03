@@ -22,40 +22,16 @@ html {
   --aw-color-text-page: rgb(16 16 16);
   --aw-color-bg-page: rgb(255 255 255);
 
-  --aw-color-bg-page-dark: rgb(3 6 32);
 
   ::selection {
     background-color: lavender;
   }
 }
 
-.dark {
-  --aw-font-sans: 'Inter Variable';
-  --aw-font-serif: 'Inter Variable';
-  --aw-font-heading: 'Inter Variable';
-
-  --aw-color-primary: rgb(142 68 173);     /* Roxo do centro do círculo */
-  --aw-color-secondary: rgb(226 138 122);   /* Rosa/coral das seções externas */
-  --aw-color-accent: rgb(244 208 63);       /* Amarelo/dourado das seções intermediárias */
-
-  --aw-color-text-heading: rgb(247, 248, 248);
-  --aw-color-text-default: rgb(229 236 246);
-  --aw-color-text-muted: rgb(229 236 246 / 66%);
-  --aw-color-text-page: rgb(229 236 246);
-  --aw-color-bg-page: rgb(3 6 32);
-
-  ::selection {
-    background-color: black;
-    color: snow;
-  }
-}
 
 @layer utilities {
   .bg-page {
     background-color: var(--aw-color-bg-page);
-  }
-  .bg-dark {
-    background-color: var(--aw-color-bg-page-dark);
   }
   .bg-light {
     background-color: var(--aw-color-bg-page);
@@ -70,11 +46,11 @@ html {
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-page leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-page leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 cursor-pointer;
   }
 
   .btn-primary {
-    @apply btn font-semibold bg-primary text-white border-primary hover:bg-secondary hover:border-secondary hover:text-white dark:text-white dark:bg-primary dark:border-primary dark:hover:border-secondary dark:hover:bg-secondary;
+    @apply btn font-semibold bg-primary text-white border-primary hover:bg-secondary hover:border-secondary hover:text-white;
   }
 
   .btn-secondary {
@@ -82,7 +58,7 @@ html {
   }
 
   .btn-tertiary {
-    @apply btn border-none shadow-none text-muted hover:text-gray-900 dark:text-gray-400 dark:hover:text-white;
+    @apply btn border-none shadow-none text-muted hover:text-gray-900;
   }
 }
 
@@ -94,8 +70,7 @@ html {
   @apply bg-page md:bg-white/40 md:backdrop-blur-md;
   box-shadow: 0 0.375rem 1.5rem 0 rgb(140 152 164 / 13%);
 }
-.dark #header.scroll > div:first-child,
-#header.scroll.dark > div:first-child {
+#header.scroll > div:first-child {
   @apply bg-page md:bg-[#030621e6] border-b border-gray-500/20;
   box-shadow: none;
 }
