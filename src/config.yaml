@@ -11,14 +11,13 @@ metadata:
   title:
     default: Porto de Abrigo
     template: '%s — Porto de Abrigo'
-  description: "Candidatura à Junta Regional do Porto 2025-2028. Caminhar com TODOS. Servir cada Um. Uma equipa experiente e comprometida com o desenvolvimento do escutismo na região."
   robots:
     index: true
     follow: true
   openGraph:
     site_name: Porto de Abrigo
     images:
-      - url: '~/assets/images/default.png'
+      - url: '~/assets/images/elmentos/circle_logo.png'
         width: 1200
         height: 628
     type: website
