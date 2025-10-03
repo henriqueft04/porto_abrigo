@@ -10,18 +10,18 @@ const {
   tagline = await Astro.slots.render('tagline'),
   items = [],
   columns = 2,
-
+  img = await Astro.slots.render('img'),
   defaultIcon,
 
   id,
-  isDark = false,
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
 ---
 
-<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`} bg={bg}>
+<WidgetWrapper id={id} containerClass={`max-w-5xl ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline as Record<string, string>} />
+  <img src={img} alt="Features" class="w-full h-auto" />
   <ItemGrid
     items={items}
     columns={columns}

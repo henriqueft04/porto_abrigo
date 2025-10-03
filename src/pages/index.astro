@@ -14,6 +14,7 @@ import ImageModal from '~/components/ui/ImageModal.astro';
 
 // Import images
 import contarImage from '~/assets/images/equipa/rotated.png';
+import vitraisImage from '~/assets/images/elementos/vitrais JRP.png';
 
 const metadata = {
   title: 'Porto de Abrigo — Candidatura à Junta Regional do Porto 2025-2028',
@@ -43,8 +44,8 @@ const candidatosPrincipais = [
     description: "Engenheira de Software, Chefe de Núcleo Este, Formadora e Diretora de Formação do CNE. Distinções: Cruz de S. Jorge de 1ª Classe.",
     image: "~/assets/images/equipa/vera.jpeg", 
     stats: [
-      { label: "Anos Escutismo", value: "20+" },
-      { label: "Distinções", value: "1" },
+      { label: "Anos Escutismo", value: "35+" },
+      { label: "Distinções", value: "3" },
       { label: "Núcleo", value: "Este" }
     ],
     curriculumPage: 7,
@@ -60,7 +61,7 @@ const secretariosRegionais = [
     description: "Gestora de crédito, atualmente Chefe de Núcleo Centro Norte.",
     image: "~/assets/images/equipa/maria.jpeg",
     stats: [
-      { label: "Anos Escutismo", value: "18+" },
+      { label: "Anos Escutismo", value: "49+" },
       { label: "Cargos", value: "8+" },
       { label: "Núcleo", value: "Centro Norte" }
     ],
@@ -74,8 +75,8 @@ const secretariosRegionais = [
     description: "Chefe de Núcleo Litoral, Formador do CNE e Diretor do MISC. Distinções: Cruz de São Jorge 2º classe.",
     image: "~/assets/images/equipa/pedro.jpeg",
     stats: [
-      { label: "Anos Escutismo", value: "25+" },
-      { label: "Distinções", value: "1" },
+      { label: "Anos Escutismo", value: "40+" },
+      { label: "Distinções", value: "4" },
       { label: "Núcleo", value: "Litoral" }
     ],
     curriculumPage: 8,
@@ -88,7 +89,7 @@ const secretariosRegionais = [
     description: "Técnica Superior Jurista, Chefe Adjunta do Núcleo Terras de Santa Maria.",
     image: "~/assets/images/equipa/carla.jpeg",
     stats: [
-      { label: "Anos Escutismo", value: "15+" },
+      { label: "Anos Escutismo", value: "33+" },
       { label: "Cargos", value: "5+" },
       { label: "Núcleo", value: "T. Sta Maria" }
     ],
@@ -102,8 +103,8 @@ const secretariosRegionais = [
     description: "Vasta experiência como Chefe de Núcleo e Secretário Regional Pedagógico. Distinções: Cruz de S. Jorge 1ª Classe.",
     image: "~/assets/images/equipa/antiono_alberto.jpeg",
     stats: [
-      { label: "Anos Escutismo", value: "30+" },
-      { label: "Distinções", value: "1" },
+      { label: "Anos Escutismo", value: "51+" },
+      { label: "Distinções", value: "3" },
       { label: "Experiência", value: "Sec. Regional" }
     ],
     curriculumPage: 11,
@@ -116,8 +117,8 @@ const secretariosRegionais = [
     description: "Secretário Administrativo de Núcleo Norte e Chefe de Agrupamento Adjunto.",
     image: "~/assets/images/equipa/rui.jpeg",
     stats: [
-      { label: "Anos Escutismo", value: "20+" },
-      { label: "Cargos", value: "6+" },
+      { label: "Anos Escutismo", value: "16+" },
+      { label: "Cargos", value: "4+" },
       { label: "Núcleo", value: "Norte" }
     ],
     curriculumPage: 12,
@@ -130,8 +131,8 @@ const secretariosRegionais = [
     description: "Diretor executivo, atualmente Chefe de Agrupamento e Interlocutor Internacional da Junta Regional do Porto.",
     image: "~/assets/images/equipa/cristiano.jpeg",
     stats: [
-      { label: "Anos Escutismo", value: "22+" },
-      { label: "Formações", value: "50+" },
+      { label: "Anos Escutismo", value: "34+" },
+      { label: "Distinções", value: "2" },
       { label: "Internacional", value: "JRP" }
     ],
     curriculumPage: 13,
@@ -184,6 +185,7 @@ const secretariosRegionais = [
     tagline="As nossas propostas"
     title="O que propomos para a região"
     subtitle="Três pilares fundamentais que orientam toda a nossa visão para o desenvolvimento do escutismo na Região do Porto durante o triénio 2025-2028."
+    img={vitraisImage.src}
     items={[
       {
         title: 'CAPACITAR',
@@ -202,24 +204,6 @@ const secretariosRegionais = [
         description:
           'Valorizar a missão do escutismo no desenvolvimento integral dos jovens e reconhecer o contributo de cada um.',
         icon: 'tabler:award',
-      },
-      {
-        title: 'Transparência na Gestão',
-        description:
-          'Construir confiança através de transparência, ética e responsabilidade na gestão de recursos com prestação de contas clara.',
-        icon: 'tabler:eye',
-      },
-      {
-        title: 'Inclusão e Diversidade',
-        description:
-          'Promover uma região que envolva, ouça e respeite a diversidade dos núcleos e dos seus agrupamentos.',
-        icon: 'tabler:heart-handshake',
-      },
-      {
-        title: 'Impacto Real',
-        description:
-          'Priorizar ações que tenham impacto real na vida dos nossos escuteiros e dirigentes, e das suas comunidades.',
-        icon: 'tabler:target',
       },
     ]}
   />
@@ -245,7 +229,7 @@ const secretariosRegionais = [
       {
         title: 'Experiência Comprovada',
         description:
-          'Dirigentes com percurso sólido em diferentes níveis organizacionais, desde agrupamentos até estruturas nacionais.',
+          'Dirigentes com percurso sólido em diferentes níveis organizacionais.',
       },
     ]}
     image={{
@@ -337,31 +321,31 @@ const secretariosRegionais = [
       {
         title: '<span class="font-medium">Chefia Regional</span>',
         description:
-          'Promover trabalho sistémico entre os diversos níveis do CNE. Articular o trabalho entre as secretarias regionais. Definir e implementar uma Política Regional de Expansão. Estreitar relações com entidades externas.',
+          '• Promover trabalho sistémico entre os diversos níveis do CNE<br>• Articular o trabalho entre as secretarias regionais<br>• Definir e implementar uma Política Regional de Expansão<br>• Estreitar relações com entidades externas',
         icon: 'tabler:crown',
       },
       {
         title: '<span class="font-medium">Secretaria dos Adultos</span>',
         description:
-          'Envolver, valorizar e capacitar o quadro de formadores regionais. Investir nas áreas de aprofundamento pedagógico. Promover formação contínua diferenciada. Melhorar condições de formação.',
+          '• Envolver, valorizar e capacitar o quadro de formadores regionais<br>• Investir nas áreas de aprofundamento pedagógico<br>• Promover formação contínua diferenciada<br>• Melhorar condições de formação',
         icon: 'tabler:school',
       },
       {
         title: '<span class="font-medium">Desenvolvimento</span>',
         description:
-          'Promover ambiente inclusivo. Preparar para situações de emergência. Promover práticas sustentáveis. Melhorar comunicação interna e externa entre todos os níveis.',
+          '• Promover ambiente inclusivo<br>• Preparar para situações de emergência<br>• Promover práticas sustentáveis<br>• Melhorar comunicação interna e externa entre todos os níveis',
         icon: 'tabler:growth',
       },
       {
         title: '<span class="font-medium">Gestão & Finanças</span>',
         description:
-          'Tornar processos administrativos claros e eficientes. Criar canais de comunicação abertos. Dinamizar a utilização do SIIE. Gestão financeira clara e explícita com controlo constante.',
+          '• Tornar processos administrativos claros e eficientes<br>• Criar canais de comunicação abertos<br>• Dinamizar a utilização do SIIE<br>• Gestão financeira clara e explícita com controlo constante',
         icon: 'tabler:calculator',
       },
       {
         title: '<span class="font-medium">Património & Pedagogia</span>',
         description:
-          'Capacitar e dinamizar infraestruturas regionais. Requalificar a Casa da Região. Criar ferramentas pedagógicas simples e acessíveis. Valorizar projetos locais criativos.',
+          '• Capacitar e dinamizar infraestruturas regionais<br>• Requalificar a Casa da Região<br>• Criar ferramentas pedagógicas simples e acessíveis<br>• Valorizar projetos locais criativos',
         icon: 'tabler:building',
       },
     ]}
@@ -381,52 +365,52 @@ const secretariosRegionais = [
       {
         title: 'Inclusão',
         description: "Promover uma região que envolva, ouça e respeite a diversidade dos núcleos e agrupamentos.",
-        icon: 'flat-color-icons:approval',
+        icon: 'tabler:users-group',
       },
       {
         title: 'Transparência',
         description:
           "Gestão clara e transparente de recursos, com prestação de contas regular e acessível a todos.",
-        icon: 'flat-color-icons:gallery',
+        icon: 'tabler:eye',
       },
       {
         title: 'Formação',
         description:
           'Investir na capacitação contínua dos dirigentes, oferecendo formação de qualidade e adaptada às necessidades.',
-        icon: 'flat-color-icons:template',
+        icon: 'tabler:school',
       },
       {
         title: 'Inovação',
         description:
           "Promover novas práticas e ferramentas que facilitem o trabalho dos agrupamentos e melhorem a experiência escutista.",
-        icon: 'flat-color-icons:document',
+        icon: 'tabler:bulb',
       },
       {
         title: 'Sustentabilidade',
         description:
           'Promover práticas ambientalmente responsáveis e educar para a consciencialização ambiental.',
-        icon: 'flat-color-icons:advertising',
+        icon: 'tabler:leaf',
       },
       {
         title: 'Apoio Local',
         description: 'Dar suporte efetivo aos núcleos e agrupamentos nas suas necessidades específicas.',
-        icon: 'flat-color-icons:business-contact',
+        icon: 'tabler:help',
       },
       {
         title: 'Comunicação',
         description: 'Melhorar os fluxos de informação entre todos os níveis da estrutura regional.',
-        icon: 'flat-color-icons:voice-presentation',
+        icon: 'tabler:message-circle',
       },
       {
         title: 'Património',
         description:
           'Valorizar e otimizar o uso das infraestruturas regionais para benefício de toda a comunidade escutista.',
-        icon: 'flat-color-icons:database',
+        icon: 'tabler:building',
       },
       {
         title: 'Juventude',
         description: "Dar voz ativa aos jovens dirigentes e valorizar o seu contributo para o desenvolvimento regional.",
-        icon: 'flat-color-icons:currency-exchange',
+        icon: 'tabler:heart',
       },
     ]}
   >
@@ -440,9 +424,9 @@ const secretariosRegionais = [
   <Stats
     stats={[
       { title: 'Anos de Experiência', amount: '40+' },
-      { title: 'Núcleos na Região', amount: '6' },
-      { title: 'Agrupamentos', amount: '80+' },
-      { title: 'Escuteiros', amount: '8.000+' },
+      { title: 'Núcleos na Região', amount: '7' },
+      { title: 'Agrupamentos', amount: '122' },
+      { title: 'Escuteiros', amount: '9.000' },
     ]}
   />
 
