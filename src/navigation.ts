@@ -11,15 +11,15 @@ export const headerData = {
       links: [
         {
           text: 'Visão Geral',
-          href: '#propostas',
+          href: getPermalink('/#propostas'),
         },
         {
           text: 'Propostas Detalhadas',
-          href: '#propostas-detalhadas',
+          href: getPermalink('/#propostas-detalhadas'),
         },
         {
           text: 'Compromissos',
-          href: '#compromissos',
+          href: getPermalink('/#compromissos'),
         },
       ],
     },
@@ -28,11 +28,11 @@ export const headerData = {
       links: [
         {
           text: 'Liderança',
-          href: '#lideranca',
+          href: getPermalink('/#lideranca'),
         },
         {
           text: 'Candidatos',
-          href: '#equipa',
+          href: getPermalink('/#equipa'),
         },
       ],
     },
