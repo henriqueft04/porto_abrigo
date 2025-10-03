@@ -24,7 +24,7 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 export default defineConfig({
   output: 'static',
   site: 'https://henriqueft04.github.io',
-  base: process.env.NODE_ENV === 'production' ? '/porto_abrigo' : '/',
+  base: '/',
 
   integrations: [
     tailwind(),

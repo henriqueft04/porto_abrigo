@@ -81,12 +81,9 @@ export const footerData = {
       ],
     },
   ],
-  secondaryLinks: [
-    { text: 'Política de Privacidade', href: getPermalink('/privacy') },
-  ],
   socialLinks: [
-    { ariaLabel: 'Facebook', icon: 'tabler:brand-facebook', href: '#' },
-    { ariaLabel: 'Instagram', icon: 'tabler:brand-instagram', href: '#' },
+    { ariaLabel: 'Facebook', icon: 'tabler:brand-facebook', href: 'https://web.facebook.com/profile.php?id=61580342630617' },
+    { ariaLabel: 'Instagram', icon: 'tabler:brand-instagram', href: 'https://www.instagram.com/portodeabrigo.escutismo' },
     { ariaLabel: 'Email', icon: 'tabler:mail', href: 'mailto:geral@portodeabrigo.com' },
   ],
   footNote: `

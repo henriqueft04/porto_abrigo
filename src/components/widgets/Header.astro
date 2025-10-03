@@ -6,6 +6,7 @@ import Button from '~/components/ui/Button.astro';
 
 import { getHomePermalink } from '~/utils/permalinks';
 import { trimSlash } from '~/utils/permalinks';
+import { SITE } from 'astrowind:config';
 import type { CallToAction } from '~/types';
 
 interface Link {
@@ -39,7 +40,8 @@ const {
   position = 'center',
 } = Astro.props;
 
-const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
+const basePath = SITE.base || '/';
+const currentPath = `/${trimSlash(new URL(Astro.url).pathname.replace(new RegExp(`^${basePath}`), ''))}`;
 ---
 
 <header

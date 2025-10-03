@@ -1,7 +1,7 @@
 site:
   name: Porto de Abrigo
   site: 'https://henriqueft04.github.io'
-  base: '/porto_abrigo'
+  base: '/'
   trailingSlash: false
 
   googleSiteVerificationId: false

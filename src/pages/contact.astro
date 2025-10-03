@@ -1,7 +1,6 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
-import ContactUs from '~/components/widgets/Contact.astro';
 import Features2 from '~/components/widgets/Features2.astro';
 
 const metadata = {
@@ -14,43 +13,6 @@ const metadata = {
 
   <HeroText tagline="Contacto" title="Vamos juntos construir o futuro!" />
 
-  <ContactUs
-    id="form"
-    title="Entre em contacto connosco!"
-    subtitle="A sua voz é importante. Partilhe as suas ideias, questões ou manifeste o seu apoio à nossa candidatura. Estamos aqui para ouvir e trabalhar em conjunto."
-    inputs={[
-      {
-        type: 'text',
-        name: 'name',
-        label: 'Nome Completo',
-      },
-      {
-        type: 'email',
-        name: 'email',
-        label: 'Email',
-      },
-      {
-        type: 'text',
-        name: 'agrupamento',
-        label: 'Agrupamento/Núcleo (opcional)',
-      },
-      {
-        type: 'select',
-        name: 'assunto',
-        label: 'Assunto',
-        options: 'Apoio à candidatura,Questão sobre propostas,Sugestão,Voluntariado,Outro',
-      },
-    ]}
-    textarea={{
-      label: 'Mensagem',
-      placeholder: 'Partilhe as suas ideias, questões ou sugestões...',
-    }}
-    disclaimer={{
-      label:
-        'Ao submeter este formulário, concorda com o tratamento dos seus dados pessoais nos termos da política de privacidade.',
-    }}
-    description="A nossa equipa responde habitualmente no prazo de 24 horas."
-  />
 
   <!-- Features2 Widget ************** -->
 
@@ -63,10 +25,9 @@ const metadata = {
         icon: 'tabler:question-mark',
       },
       {
-        title: 'Apoio e Voluntariado',
-        description:
-          'Quer apoiar ativamente a nossa candidatura? Há várias formas de se envolver e contribuir para o sucesso da nossa proposta.',
-        icon: 'tabler:heart-handshake',
+        title: 'Voto',
+        description: `Dia 7 de Dezembro vote.`,
+        icon: 'tabler:notes',
       },
       {
         title: 'Sugestões e Ideias',
@@ -81,7 +42,7 @@ const metadata = {
       },
       {
         title: 'Redes Sociais',
-        description: 'Siga-nos nas redes sociais para estar a par das novidades da candidatura',
+        description: 'Siga-nos nas redes sociais para estar a par das novidades da candidatura Portodeabrigo.Escutismo',
         icon: 'tabler:share',
       },
       {
