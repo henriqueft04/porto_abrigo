@@ -1,6 +1,6 @@
 site:
   name: Porto de Abrigo
-  site: 'https://henriqueft04.github.io'
+  site: 'https://portodeabrigo.netlify.app'
   base: '/'
   trailingSlash: false
 
