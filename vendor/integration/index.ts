@@ -31,7 +31,7 @@ export default ({ config: _themeConfig = 'src/config.yaml' } = {}): AstroIntegra
         // Update SITE object with conditional base path
         const updatedSITE = {
           ...SITE,
-          base: process.env.NODE_ENV === 'production' ? '/porto_abrigo' : SITE.base,
+          base: SITE.base,
         };
 
         updateConfig({
