@@ -83,7 +83,7 @@ export const footerData = {
   socialLinks: [
     { ariaLabel: 'Facebook', icon: 'tabler:brand-facebook', href: 'https://web.facebook.com/profile.php?id=61580342630617' },
     { ariaLabel: 'Instagram', icon: 'tabler:brand-instagram', href: 'https://www.instagram.com/portodeabrigo.escutismo' },
-    { ariaLabel: 'Email', icon: 'tabler:mail', href: 'mailto:geral@portodeabrigo.com' },
+    { ariaLabel: 'Email', icon: 'tabler:mail', href: 'mailto:portodeabrigo.escutismo@gmail.com' },
   ],
   footNote: `
     Candidatura <strong>Porto de Abrigo</strong> · Junta Regional do Porto 2025-2028 - Site by Henrique Teixeira.
